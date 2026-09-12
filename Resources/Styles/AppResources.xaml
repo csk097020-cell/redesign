@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Converters registered as static resources so XAML pages can use them -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    xmlns:conv="clr-namespace:MomentaryMomentos.Converters">
+
+    <conv:InverseBoolConverter x:Key="InverseBoolConverter" />
+    <conv:ContainsItemConverter x:Key="ContainsItemConverter" />
+    <conv:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+    <conv:BoolToFavoriteIconConverter x:Key="FavoriteIconConverter" />
+    <conv:AdminLabelConverter x:Key="AdminLabelConverter" />
+    <conv:StringEqualMultiConverter x:Key="StringEqualMultiConverter" />
+
+</ResourceDictionary>

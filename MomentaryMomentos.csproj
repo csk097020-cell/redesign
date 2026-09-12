@@ -1,0 +1,142 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <!-- iOS and Android only — single codebase per contract Appendix A -->
+	  <!-- iOS builds on Windows are skipped by default (halves build time for Android-only work).
+         To enable iOS-on-Windows via Pair to Mac, set machine env var PairToMac=true. -->
+	  <TargetFrameworks Condition="'$(PairToMac)' == 'true' or !$([MSBuild]::IsOSPlatform('windows'))">net10.0-android;net10.0-ios</TargetFrameworks>
+	  <TargetFrameworks Condition="'$(TargetFrameworks)' == ''">net10.0-android</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MomentaryMomentos</RootNamespace>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- Compile XAML bindings with explicit Source (e.g. RelativeSource) at build time instead of runtime reflection -->
+    <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
+
+    <!-- App Info -->
+    <ApplicationTitle>Momentary Momentos</ApplicationTitle>
+	<ApplicationId>com.momentarymementos.app</ApplicationId>
+    <ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
+    <ApplicationVersion>17</ApplicationVersion>
+
+    <!-- iOS: 15.0 clears App Store Connect warning 90068 (minimum OS too low). Still satisfies the
+         contract Appendix A Section 3 "iOS 14+" device requirement — iOS 15 runs on every device
+         that ran iOS 14 (iPhone 6s and later), so no supported device is dropped. -->
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <!-- Android: compatible with Android 8.0+ (API 26) per contract Appendix A Section 3 -->
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">26.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">26</TargetPlatformMinVersion>
+  </PropertyGroup>
+
+  <!-- ===== Release: Android signing ===== -->
+  <!-- Keystore lives at the project root, momentarymementos-release.jks (never in git) -->
+  <!-- Set KEYSTORE_PASS as a machine environment variable or pass on the dotnet publish command line -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <AndroidKeyStore>true</AndroidKeyStore>
+    <AndroidSigningKeyStore>$(MSBuildProjectDirectory)\momentarymementos-release.jks</AndroidSigningKeyStore>
+    <AndroidSigningKeyAlias>momentarymementos</AndroidSigningKeyAlias>
+    <AndroidSigningKeyPass>$(KEYSTORE_PASS)</AndroidSigningKeyPass>
+    <AndroidSigningStorePass>$(KEYSTORE_PASS)</AndroidSigningStorePass>
+  </PropertyGroup>
+
+  <!-- ===== Debug: faster emulator deployment ===== -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <!-- Fast deployment requires VS debugger to push assemblies separately — disabled for adb install compatibility -->
+    <!-- Fast deployment requires VS debugger to push assemblies separately — disabled for adb install compatibility -->
+    <AndroidFastDeployment>false</AndroidFastDeployment>
+    <!-- Embed assemblies directly in APK so plain adb install works without VS fast-deploy push -->
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <!-- Skip AOT in debug — interpreter is fast enough and saves significant build time -->
+    <RunAOTCompilation>false</RunAOTCompilation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios'">
+    <CodesignKey>Apple Distribution: Corinne Kelley (27X6A8Y78D)</CodesignKey>
+    <CodesignProvision>MoMo App Store Distribution</CodesignProvision>
+    <ProvisioningType>manual</ProvisioningType>
+  </PropertyGroup>
+
+  <!-- Plugin.InAppBilling.dll embeds a [MetaData] attribute for billingclient version 6.0.1
+       AND the billing AAR also declares version 6.1.0, so _GenerateJavaStubs writes both
+       into the intermediate AndroidManifest.xml. manifestmerger.jar rejects the duplicates.
+       This target uses PowerShell XML manipulation to remove all but the highest-version
+       billing meta-data element, leaving exactly one for the merger to process. -->
+  <Target Name="FixBillingManifestDuplicate" AfterTargets="_GenerateJavaStubs" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <PropertyGroup>
+      <_IntermManifest>$(IntermediateOutputPath)AndroidManifest.xml</_IntermManifest>
+    </PropertyGroup>
+    <Exec Command="powershell -NoProfile -Command &quot;$xml = [xml](Get-Content -LiteralPath '$(IntermediateOutputPath.Replace('\','\\'))AndroidManifest.xml'); $ns = 'http://schemas.android.com/apk/res/android'; $app = $xml.manifest.application; $billing = $app.ChildNodes | Where-Object { $_.LocalName -eq 'meta-data' -and $_.GetAttribute('name',$ns) -eq 'com.google.android.play.billingclient.version' }; if($billing.Count -gt 1) { $keep = $billing | Sort-Object { [version]($_.GetAttribute('value',$ns)) } | Select-Object -Last 1; $billing | Where-Object { $_ -ne $keep } | ForEach-Object { $app.RemoveChild($_) }; $xml.Save('$(IntermediateOutputPath.Replace('\','\\'))AndroidManifest.xml') }&quot;" Condition="Exists('$(_IntermManifest)')" />
+  </Target>
+
+  <!-- ===== MAUI Assets ===== -->
+  <ItemGroup>
+    <!-- Android: adaptive icon. The launcher mask zooms/crops a full-bleed icon,
+         clipping the hourglass edges. We scale the icon into the adaptive safe zone
+         (ForegroundScale) over a solid background Color sampled from appicon.png
+         (#4A4D7B). Because appicon.png's own background is that same #4A4D7B, the
+         scaled square blends seamlessly into the background, leaving the hourglass
+         mark inset and uncropped.
+         Note: logo.png (the bare mark) can't be the foreground here — it's already a
+         MauiImage/MauiSplashScreen, which collides; and routing it via ForegroundFile
+         makes the Include image the background layer, doubling the hourglass. -->
+    <MauiIcon Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'" Include="Resources\Images\appicon.png" ForegroundScale="0.65" Color="#4A4D7B" />
+
+    <!-- iOS: no adaptive masking, so keep the original full-bleed icon unchanged. -->
+    <MauiIcon Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'" Include="Resources\Images\appicon.png" Color="#050B1F" />
+
+    <MauiSplashScreen Include="Resources\Images\logo.png" Color="#050B1F" BaseSize="96,96" />
+
+    <MauiImage Include="Resources\Images\*.svg" Exclude="Resources\Images\appicon.svg;Resources\Images\appiconfg.svg;Resources\Images\splash.svg" />
+    <MauiImage Include="Resources\Images\*.png" Exclude="Resources\Images\appicon.png" />
+
+    <MauiFont Include="Resources\Fonts\*.ttf" />
+
+    <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- ===== Embedded Config ===== -->
+  <ItemGroup>
+    <!-- appsettings.json embedded so IConfiguration can read it at runtime -->
+    <EmbeddedResource Include="appsettings.json" LogicalName="appsettings.json" />
+  </ItemGroup>
+
+  <!-- ===== NuGet Packages ===== -->
+  <ItemGroup>
+    <!-- MAUI core -->
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.51" />
+    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.51" />
+
+    <!-- MVVM source generators -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+
+    <!-- Community Toolkit MAUI (converters, behaviors, MediaElement) -->
+    <PackageReference Include="CommunityToolkit.Maui" Version="14.1.0" />
+    <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="9.0.0" />
+
+    <!-- SQLite offline cache -->
+    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3.android" Version="2.1.12" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'" />
+
+    <!-- Configuration (reads embedded appsettings.json) -->
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+
+    <!-- Debug logging -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+
+    <!-- JSON serializer -->
+
+    <!-- Local push notifications (engagement, insights, memory flashbacks) -->
+    <PackageReference Include="Plugin.LocalNotification" Version="11.1.4" />
+
+    <!-- Crash reporting -->
+    <PackageReference Include="Sentry.Maui" Version="5.3.0" />
+
+    <!-- Android in-app billing (Google Play Billing via Plugin.InAppBilling) -->
+    <PackageReference Include="Plugin.InAppBilling" Version="10.0.0" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'" />
+
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MomentaryMomentos.ViewModels"
+             xmlns:models="clr-namespace:MomentaryMomentos.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="MomentaryMomentos.Views.CapturePage"
+             x:Name="Page"
+             x:DataType="vm:CaptureViewModel"
+             Title="Capture"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#050B1F" Offset="0" />
+            <GradientStop Color="#0D1635" Offset="0.55" />
+            <GradientStop Color="#110A2E" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,20" Spacing="16">
+
+            <!-- Page header with logo -->
+            <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,6">
+                <Image Source="logo.png" WidthRequest="36" HeightRequest="36"
+                       Aspect="AspectFit" VerticalOptions="Center" Margin="0,0,10,0" />
+                <Label Grid.Column="1" Text="Capture a Moment" Style="{StaticResource H2}"
+                       VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Step 1: Record or Pick Video -->
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Step 1 — Record your moment" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+                    <Label Text="Max 10 seconds." Style="{StaticResource Body}" />
+
+                    <!-- Both options — plain "Capture" tab entry, no intent (FIX 1) -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" IsVisible="{Binding ShowBothOptions}">
+                        <Button Text="🎥  Record" Style="{StaticResource PrimaryBtn}"
+                                Command="{Binding CaptureVideoCommand}"
+                                IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+                                Margin="0" />
+                        <Button Grid.Column="1" Text="📂  Pick Video" Style="{StaticResource SecondaryBtn}"
+                                Command="{Binding PickVideoCommand}"
+                                IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+                                Margin="0" />
+                    </Grid>
+
+                    <!-- Single option — Home's Capture/Upload buttons carry an intent, so only
+                         the relevant action shows (the camera/picker also auto-launches; see
+                         CapturePage.OnAppearing) (FIX 1). -->
+                    <Button Text="🎥  Record" Style="{StaticResource PrimaryBtn}"
+                            IsVisible="{Binding ShowRecordOnly}"
+                            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+                            Command="{Binding CaptureVideoCommand}" Margin="0" />
+                    <Button Text="📂  Pick Video" Style="{StaticResource SecondaryBtn}"
+                            IsVisible="{Binding ShowPickOnly}"
+                            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+                            Command="{Binding PickVideoCommand}" Margin="0" />
+
+                    <!-- Processing feedback. Re-encoding a 4K clip runs the better part of ten
+                         seconds; without this the screen looks frozen and users assume it failed. -->
+                    <Border BackgroundColor="#2200D4FF"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1"
+                            Stroke="#5500D4FF"
+                            Padding="14,12"
+                            IsVisible="{Binding IsProcessing}">
+                        <VerticalStackLayout Spacing="8">
+                            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                                <ActivityIndicator IsRunning="{Binding IsProcessing}"
+                                                   Color="{StaticResource GlowCyan}"
+                                                   HeightRequest="20" WidthRequest="20"
+                                                   VerticalOptions="Center" />
+                                <Label Text="{Binding Status}" TextColor="{StaticResource GlowCyan}"
+                                       FontAttributes="Bold" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <ProgressBar Progress="{Binding ProcessingProgress}"
+                                         ProgressColor="{StaticResource GlowCyan}" />
+                            <Label Text="Large videos are shrunk so they upload quickly. This only takes a moment."
+                                   Style="{StaticResource Body}"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Looping muted video preview — shows the captured/picked clip (#19) -->
+                    <toolkit:MediaElement
+                        Source="{Binding VideoPreviewSource}"
+                        IsVisible="{Binding HasVideo}"
+                        HeightRequest="200"
+                        Aspect="AspectFit"
+                        ShouldAutoPlay="True"
+                        ShouldLoopPlayback="True"
+                        ShouldShowPlaybackControls="False"
+                        ShouldMute="True"
+                        BackgroundColor="Black" />
+
+                    <!-- Captured indicator — glass success -->
+                    <Border BackgroundColor="#2200E5A0"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1"
+                            Stroke="#5500E5A0"
+                            Padding="14,10"
+                            IsVisible="{Binding HasVideo}">
+                        <Label Text="✅  Video ready!" TextColor="{StaticResource GlowGreen}"
+                               FontAttributes="Bold" HorizontalOptions="Center" />
+                    </Border>
+
+                    <!-- Discard & re-record — available as soon as a video is recorded (FIX 3),
+                         without needing to select a tag first. -->
+                    <Button Text="↺  Start Over"
+                            Style="{StaticResource SecondaryBtn}"
+                            Command="{Binding StartOverCommand}"
+                            IsVisible="{Binding HasVideo}"
+                            Margin="0,4,0,0" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Step 2: Title + Date Captured -->
+            <Frame Style="{StaticResource Card}" IsVisible="{Binding HasVideo}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Step 2 — Title &amp; date" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+
+                    <Label Text="Title (optional)" Style="{StaticResource Caption}" />
+                    <Frame Style="{StaticResource GlassInput}">
+                        <Entry Text="{Binding TitleInput}" Placeholder="Give this moment a name"
+                               MaxLength="80" ReturnType="Next" BackgroundColor="Transparent" />
+                    </Frame>
+
+                    <Label Text="Date captured" Style="{StaticResource Caption}" Margin="0,4,0,0" />
+                    <Frame Style="{StaticResource GlassInput}">
+                        <DatePicker Date="{Binding DateCaptured}"
+                                    MaximumDate="{Binding MaxCaptureDate}"
+                                    Format="MMM d, yyyy"
+                                    BackgroundColor="Transparent" />
+                    </Frame>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Step 3: Tag emotions -->
+            <Frame Style="{StaticResource Card}" IsVisible="{Binding HasVideo}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Step 3 — How do you feel?" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{StaticResource GlowCyan}"
+                                       IsVisible="{Binding IsBusy}" HorizontalOptions="Center" />
+
+                    <!-- Emotion Tags Grid -->
+                    <FlexLayout BindableLayout.ItemsSource="{Binding Tags}"
+                                Wrap="Wrap" JustifyContent="Start" Direction="Row">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:Tag">
+                                <!-- Shrink=0 keeps the pill at its full text width (FIX 4) -->
+                                <Button Text="{Binding DisplayLabel}"
+                                        FlexLayout.Shrink="0"
+                                        BackgroundColor="{Binding Color}"
+                                        TextColor="White"
+                                        FontSize="13"
+                                        FontAttributes="Bold"
+                                        CornerRadius="22"
+                                        Padding="14,8"
+                                        Margin="4"
+                                        BorderColor="White"
+                                        BorderWidth="0"
+                                        Clicked="OnEmotionTagClicked"
+                                        CommandParameter="{Binding .}">
+                                    <!-- Selected tags get a bright ring; unselected stay borderless -->
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button"
+                                                     Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="BorderWidth" Value="3" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+
+                    <!-- Add custom tag button -->
+                    <Button Text="＋  Add your own tag"
+                            Style="{StaticResource SecondaryBtn}"
+                            Command="{Binding CreateCustomTagCommand}"
+                            FontSize="13"
+                            Margin="0,4,0,0" />
+
+                    <Label Text="{Binding Status}" TextColor="{StaticResource GlowCyan}"
+                           IsVisible="{Binding Status, Converter={StaticResource StringNotEmptyConverter}}"
+                           HorizontalOptions="Center" FontSize="13" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Step 4: Caption -->
+            <Frame Style="{StaticResource Card}" IsVisible="{Binding HasSelectedTags}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Step 4 — Add a caption" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+                    <Label Text="Caption (optional)" Style="{StaticResource Caption}" />
+                    <Frame Style="{StaticResource GlassInput}">
+                        <Editor Text="{Binding CaptionInput}" Placeholder="Add a note about this moment…"
+                                AutoSize="TextChanges" MaxLength="280"
+                                VerticalTextAlignment="Center" TextColor="{StaticResource TextPrimary}"
+                                HeightRequest="80" BackgroundColor="Transparent" />
+                    </Frame>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Step 5: Save -->
+            <Frame Style="{StaticResource Card}" IsVisible="{Binding HasSelectedTags}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Step 5 — Save your memory" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+
+                    <Button Text="💾  Save Memory" Style="{StaticResource PrimaryBtn}"
+                            Command="{Binding SaveMemoryCommand}"
+                            IsEnabled="{Binding IsSaving, Converter={StaticResource InverseBoolConverter}}" />
+
+                    <ActivityIndicator IsRunning="{Binding IsSaving}" Color="{StaticResource GlowCyan}"
+                                       IsVisible="{Binding IsSaving}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Error/Status -->
+            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}"
+                   IsVisible="{Binding HasError}" HorizontalTextAlignment="Center" FontSize="13" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

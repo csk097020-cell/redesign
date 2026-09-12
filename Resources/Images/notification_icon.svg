@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Notification small icon. Android masks this to a flat silhouette, so it must be a solid
+     white shape on transparent - anything with colour or detail renders as a grey blob. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <path fill="#FFFFFF" d="M5 3h14v2l-5 7 5 7v2H5v-2l5-7-5-7V3z"/>
+</svg>

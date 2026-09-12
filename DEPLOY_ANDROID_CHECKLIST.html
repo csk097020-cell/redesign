@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Momentary Momentos — Android Play Store Deployment Checklist</title>
+  <style>
+    /* ── Screen styles ── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 13px;
+      color: #1a1a1a;
+      background: #f5f5f5;
+      padding: 24px;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      padding: 40px 48px;
+    }
+
+    /* Header */
+    .header {
+      border-bottom: 3px solid #2563eb;
+      padding-bottom: 16px;
+      margin-bottom: 28px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1e3a8a;
+      letter-spacing: -0.3px;
+    }
+    .header .meta {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #64748b;
+      display: flex;
+      gap: 20px;
+    }
+    .header .meta span::before {
+      content: '▸ ';
+      color: #2563eb;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 22px;
+      page-break-inside: avoid;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 7px 12px;
+      margin-bottom: 8px;
+      border-radius: 0 4px 4px 0;
+    }
+    .section-number {
+      background: #2563eb;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e3a8a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Items */
+    .items { padding-left: 4px; }
+
+    .item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 5px 6px;
+      border-radius: 4px;
+      transition: background 0.1s;
+    }
+    .item:hover { background: #f8fafc; }
+    .item + .item { border-top: 1px solid #f1f5f9; }
+
+    .item input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      cursor: pointer;
+      accent-color: #2563eb;
+    }
+
+    .item-text { flex: 1; line-height: 1.45; }
+    .item-text strong { color: #0f172a; }
+    .item-text .note {
+      display: block;
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .item-text code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 11px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 3px;
+      padding: 0 4px;
+    }
+
+    .badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-block  { background: #fee2e2; color: #991b1b; }
+    .badge-high   { background: #fef3c7; color: #92400e; }
+    .badge-done   { background: #dcfce7; color: #166534; }
+
+    .code-block {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 10.5px;
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin: 10px 0 14px 26px;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 28px;
+      padding-top: 14px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 10px;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── Print styles ── */
+    @media print {
+      body { background: #fff; padding: 0; font-size: 11px; }
+      .page { box-shadow: none; border-radius: 0; padding: 20px 28px; max-width: 100%; }
+
+      .section { page-break-inside: avoid; margin-bottom: 16px; }
+      .code-block { background: #f8fafc; color: #1a1a1a; border: 1px solid #cbd5e1; font-size: 9px; }
+
+      /* Replace checkboxes with printable squares */
+      .item input[type="checkbox"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 12px;
+        height: 12px;
+        border: 1.5px solid #475569;
+        border-radius: 2px;
+        background: #fff;
+        flex-shrink: 0;
+      }
+      .item input[type="checkbox"]:checked::after {
+        content: '✓';
+        display: block;
+        font-size: 9px;
+        color: #1d4ed8;
+        line-height: 12px;
+        text-align: center;
+      }
+
+      .item:hover { background: transparent; }
+      a { color: inherit; text-decoration: none; }
+
+      @page {
+        margin: 18mm 15mm;
+        size: letter portrait;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Android Play Store — Deployment Checklist</h1>
+    <div class="meta">
+      <span>Momentary Momentos</span>
+      <span>com.momentarymomentos.app</span>
+      <span>v1.0 — Build 1</span>
+      <span>Printed: <span id="printdate"></span></span>
+    </div>
+  </div>
+
+  <!-- 1. Code / Feature Gaps -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <div class="section-title">Code / Feature Gaps</div>
+    </div>
+    <div class="items">
+      <div class="item">
+        <input type="checkbox" checked>
+        <div class="item-text">
+          <strong>Add Delete Account option</strong> — "Delete Account" button added to <code>ProfilePage</code> with 3-step confirmation flow, free email export, and paid instant export. ✓ Built.
+        </div>
+        <span class="badge badge-done">Done</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Verify Subscription pricing is live from DB (#16 & #17)</strong> — <code>SubscriptionService</code> reads pricing from DB correctly, but confirm <code>SubscriptionViewModel</code> calls <code>GetAvailablePlansAsync()</code> and the prices shown on <code>SubscriptionPage</code> match what's in Play Console.
+        </div>
+        <span class="badge badge-high">High</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Verify Play product IDs match exactly</strong> — the IDs in <code>SubscriptionService</code> are <code>monthly_premium</code> and <code>annual_premium</code>. These must match the Product IDs created in Play Console (case-sensitive, no spaces).
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox" checked>
+        <div class="item-text">
+          <strong>Memory export / download</strong> — Resolved via the Delete Account flow: free email export (signed URLs, 7-day expiry) + paid instant pack ($2.99 one-time IAP). ✓ Built.
+        </div>
+        <span class="badge badge-done">Done</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Supabase / Backend -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <div class="section-title">Supabase / Backend</div>
+    </div>
+    <div class="items">
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Run migration 001</strong> — <code>docs/migrations/001_thumbnails_and_metrics.sql</code> — adds thumbnail storage and memory weight/metrics table. Required for thumbnail display and weighted Surprise Me to work.
+          <span class="note">Supabase SQL editor: supabase.com/dashboard/project/wnumxvfvabqpgwenweff/sql</span>
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Run migration 002</strong> — <code>docs/migrations/002_subscription_pricing.sql</code> — adds <code>paid_video_limit</code>, sets live prices ($9.99/$99.99) and video limits (100 free / 500 paid).
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Verify Row Level Security policies</strong> — confirm RLS is enabled and correct on: <code>momo_profiles</code>, <code>momo_memories</code>, <code>momo_tags</code>, <code>momo_memory_metrics</code>, <code>momo_subscription_config</code>.
+        </div>
+        <span class="badge badge-high">High</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Supabase Storage bucket</strong> — confirm <code>user-videos</code> bucket exists in production, CORS allows mobile clients, and per-file size limits accommodate 50 MB videos.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Brand auth email templates</strong> — update Supabase email confirm / password reset templates with the Momentary Momentos name and logo (Authentication → Email Templates).
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Sign up for Resend and get API key</strong> — the <code>send-export-email</code> Edge Function uses Resend to send video export emails. Free tier (3,000 emails/month) is sufficient. Get key at resend.com.
+          <span class="note">Set <code>RESEND_API_KEY</code> and <code>EMAIL_FROM</code> as Supabase Edge Function secrets.</span>
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Deploy <code>send-export-email</code> Edge Function</strong> — code is in <code>docs/supabase/functions/send-export-email/index.ts</code>. Deploy via Supabase CLI:
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="code-block">supabase functions deploy send-export-email --project-ref wnumxvfvabqpgwenweff</div>
+    </div>
+  </div>
+
+  <!-- 3. Release Signing & Build -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <div class="section-title">Release Signing &amp; Build</div>
+    </div>
+    <div class="items">
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Generate release keystore</strong> — do this once; losing it means you can never update the app on the Play Store.
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="code-block">keytool -genkey -v -keystore momentarymomentos-release.jks ^
+  -alias momentarymomentos -keyalg RSA -keysize 2048 -validity 10000</div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Store keystore safely — NOT in git</strong> — back it up to a password manager or encrypted cloud storage. Add <code>*.jks</code> to <code>.gitignore</code>.
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Configure signing in <code>MomentaryMomentos.csproj</code></strong> for Release builds — use environment variable for the password, not hardcoded:
+        </div>
+      </div>
+      <div class="code-block">&lt;PropertyGroup Condition="'$(Configuration)' == 'Release'"&gt;
+  &lt;AndroidKeyStore&gt;true&lt;/AndroidKeyStore&gt;
+  &lt;AndroidSigningKeyStore&gt;path\to\momentarymomentos-release.jks&lt;/AndroidSigningKeyStore&gt;
+  &lt;AndroidSigningKeyAlias&gt;momentarymomentos&lt;/AndroidSigningKeyAlias&gt;
+  &lt;AndroidSigningKeyPass&gt;$(KEYSTORE_PASS)&lt;/AndroidSigningKeyPass&gt;
+  &lt;AndroidSigningStorePass&gt;$(KEYSTORE_PASS)&lt;/AndroidSigningStorePass&gt;
+&lt;/PropertyGroup&gt;</div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Build release AAB</strong> — Play Store requires AAB format (not APK) for all new app submissions.
+        </div>
+      </div>
+      <div class="code-block">dotnet publish -f net10.0-android -c Release
+# Output: bin\Release\net10.0-android\publish\com.momentarymomentos.app.aab</div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Smoke-test the release build on a real device</strong> — R8 code shrinking can break MAUI reflection and Supabase JSON parsing. Test login, video capture, playback, and subscription flow end-to-end.
+        </div>
+        <span class="badge badge-high">High</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. App Icon & Store Assets -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <div class="section-title">App Icon &amp; Store Assets</div>
+    </div>
+    <div class="items">
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Hi-res icon for Play Store listing</strong> — Play Console requires a separate 512×512 PNG upload (distinct from the in-app mipmap icons the MAUI build generates automatically). Check current <code>Resources/Images/appicon.png</code> dimensions and export a 512×512 version if needed.
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Feature graphic</strong> — 1024×500 PNG or JPG. Required for the Play Store listing banner. Design with app name, tagline, and a sample screenshot or mood image.
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Phone screenshots (min 2, max 8)</strong> — capture on a real 1080p+ device or high-res emulator (Pixel 8 Pro). Portrait 9:16 recommended. Show: home/dashboard, capture flow, relive/memory detail, subscription page.
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Tablet screenshots</strong> — optional but improves store ranking for tablet users. Capture on a 7-inch and/or 10-inch emulator.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Google Play Console Setup -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <div class="section-title">Google Play Console Setup</div>
+    </div>
+    <div class="items">
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Developer account active</strong> — confirm $25 one-time registration is complete and account is in good standing at play.google.com/console.
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Create the app in Play Console</strong> — New app → "Momentary Momentos", Default language: English (United States), App type: App.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Create subscription products in Play Console</strong> — Monetize → Products → Subscriptions. Must activate both before they can be purchased in-app.
+          <span class="note">Product ID: <code>monthly_premium</code> — $9.99/month</span>
+          <span class="note">Product ID: <code>annual_premium</code> — $99.99/year</span>
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Create one-time export product in Play Console</strong> — Monetize → Products → In-app products (not Subscriptions). This is the paid instant download offered during account deletion.
+          <span class="note">Product ID: <code>data_export_pack</code> — $2.99 — "Instant Memory Download Pack"</span>
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Set up billing test accounts</strong> — Play Console → Setup → License Testing → add tester Gmail addresses. Test accounts can complete purchases without being charged.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Upload AAB to Internal Testing track</strong> — add yourself and testers by email; install via Play Console link on real devices.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Test billing end-to-end on a real device</strong> — complete a test purchase (monthly and annual), verify premium status updates in Supabase, and test restore purchases.
+        </div>
+        <span class="badge badge-high">High</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Store Listing -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <div class="section-title">Store Listing Content</div>
+    </div>
+    <div class="items">
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>App name</strong> — "Momentary Momentos" (14 chars, within 30-char limit) ✓
+        </div>
+        <span class="badge badge-done">Ready</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Short description</strong> (max 80 chars) — e.g., <em>"Capture 10-second video memories and relive them when you need a boost."</em>
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Full description</strong> (max 4000 chars) — cover: video capture, emotion tags, Surprise Me, premium plans, offline mode. Include keywords for discoverability.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Category</strong> — Lifestyle or Photography (choose one in Play Console).
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Content rating</strong> — complete the IARC questionnaire in Play Console. Expected rating: Everyone (no violence, mature, or user-generated content concerns).
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Support email address</strong> — set a visible contact email in the store listing.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Legal & Compliance -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">7</div>
+      <div class="section-title">Legal &amp; Compliance</div>
+    </div>
+    <div class="items">
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Host privacy policy at a public URL</strong> — <code>docs/privacy_policy.html</code> exists but needs a public URL. Options: GitHub Pages, Netlify Drop, or upload to Supabase Storage as a public file.
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Enter privacy policy URL in Play Console</strong> — Store Listing → Privacy Policy URL.
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Complete Data Safety form</strong> (Play Console → Store Listing → Data Safety):
+          <span class="note">Collects: name, email, user videos, device identifiers (Sentry crash reporting)</span>
+          <span class="note">Financial info: handled entirely by Google Play Billing — no raw card data</span>
+          <span class="note">Encrypted in transit: Yes (HTTPS only) ✓ &nbsp; User can request deletion: ✓ Delete Account flow built</span>
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Terms of Service URL</strong> — strongly recommended for an app with paid subscriptions. Write and host a ToS document alongside the privacy policy.
+        </div>
+        <span class="badge badge-high">High</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Android Technical Checks -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">8</div>
+      <div class="section-title">Android Technical Checks</div>
+    </div>
+    <div class="items">
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Verify targetSdkVersion ≥ 35</strong> — Play Store requires new apps to target API 35 (Android 15) or higher. After building, inspect the release AAB's AndroidManifest to confirm the target SDK version.
+        </div>
+        <span class="badge badge-block">Blocking</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Runtime permissions on Android 13+</strong> — verify the <code>READ_MEDIA_VIDEO</code> permission dialog appears correctly (vs. the old <code>READ_EXTERNAL_STORAGE</code> path). Test on API 33+ device or emulator.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Camera &amp; mic on a real device</strong> — emulator camera is simulated. Do a full capture-to-save test on a physical Android phone before submitting.
+        </div>
+        <span class="badge badge-high">High</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>FileProvider in release mode</strong> — confirm the video temp file path used by <code>VideoRecorderService</code> resolves correctly via the <code>file_paths.xml</code> config when running a release build.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Billing manifest deduplication in release</strong> — the <code>FixBillingManifestDuplicate</code> MSBuild target runs without a configuration condition. Verify the release AAB builds cleanly with no manifest merge errors.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Test on Android 8.0 (API 26)</strong> — minimum supported version per contract. Verify no crashes or broken layouts on an API 26 emulator or device.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Crash Reporting -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">9</div>
+      <div class="section-title">Crash Reporting (Sentry)</div>
+    </div>
+    <div class="items">
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Sentry DSN configured</strong> — already in <code>appsettings.json</code> ✓. Verify Sentry initializes in <code>MauiProgram.cs</code> before any user interaction.
+        </div>
+        <span class="badge badge-done">Ready</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Test crash reporting in release mode</strong> — trigger a known exception in a release build on a real device and confirm it appears in the Sentry dashboard before shipping.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Tag Sentry environments</strong> — configure release builds to report as <code>production</code> and debug builds as <code>development</code> so errors are separated in the Sentry dashboard.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. Version Management -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">10</div>
+      <div class="section-title">Version Management</div>
+    </div>
+    <div class="items">
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Version set for launch</strong> — <code>ApplicationDisplayVersion=1.0</code>, <code>ApplicationVersion=1</code> (versionCode) ✓
+        </div>
+        <span class="badge badge-done">Ready</span>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Remember: versionCode must increment for every upload</strong> — even internal test track uploads. You cannot reuse a versionCode. Keep a simple running record.
+          <span class="note">Next upload = versionCode 2, then 3, etc.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. Testing Tracks -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number">11</div>
+      <div class="section-title">Testing Tracks (in order)</div>
+    </div>
+    <div class="items">
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Internal Testing</strong> — upload AAB, install on real devices via Play Console link. Verify all core flows: auth, video capture, relive, billing, offline mode.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Closed Testing / Beta</strong> — invite a small external group for real-world feedback before wide release.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Review Pre-Launch Report</strong> — after any AAB upload, Play Console runs automated Robo tests. Review Android vitals → Pre-launch report and fix any reported crashes before promoting.
+        </div>
+      </div>
+      <div class="item">
+        <input type="checkbox">
+        <div class="item-text">
+          <strong>Promote to Production</strong> — promote from closed testing when satisfied. First-time Play Store review typically takes 1–3 business days.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Momentary Momentos — Android Deployment Checklist</span>
+    <span>com.momentarymomentos.app · v1.0</span>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('printdate').textContent = new Date().toLocaleDateString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  });
+</script>
+</body>
+</html>

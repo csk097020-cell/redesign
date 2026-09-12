@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ═══════════════════════════════════════════════════
+         AERO GLASS THEME — Dark Depth + Electric Accents
+         ═══════════════════════════════════════════════════ -->
+
+    <!-- Core Aero Glow Colors -->
+    <Color x:Key="Primary">#00B4D8</Color>           <!-- Electric Cyan -->
+    <Color x:Key="PrimaryDark">#0077A8</Color>        <!-- Deep Cyan -->
+    <Color x:Key="PrimaryLight">#48CAE4</Color>       <!-- Soft Cyan -->
+    <Color x:Key="Accent">#8B5CF6</Color>             <!-- Aero Violet -->
+    <Color x:Key="AccentLight">#C4B5FD</Color>        <!-- Soft Violet -->
+
+    <!-- Aero Dark Depth Palette -->
+    <Color x:Key="Mist50">#050B1F</Color>             <!-- Deepest space navy -->
+    <Color x:Key="Mist100">#0D1635</Color>            <!-- Dark nav/card bg -->
+    <Color x:Key="Mist200">#1E3264</Color>            <!-- Glass border / dividers -->
+    <Color x:Key="Mist600">#4A6285</Color>            <!-- Muted text -->
+
+    <!-- Semantic -->
+    <Color x:Key="Success">#00E5A0</Color>            <!-- Neon teal-green -->
+    <Color x:Key="Warning">#F59E0B</Color>
+    <Color x:Key="Danger">#FF4D6A</Color>             <!-- Hot pink-red -->
+    <Color x:Key="Info">#00B4D8</Color>
+
+    <!-- Text -->
+    <Color x:Key="TextPrimary">#E8F4FD</Color>        <!-- Bright white-blue -->
+    <Color x:Key="TextSecondary">#94B4D8</Color>      <!-- Muted blue-grey -->
+    <Color x:Key="TextMuted">#4A6285</Color>          <!-- Dim slate-blue -->
+    <Color x:Key="TextOnDark">White</Color>
+
+    <!-- Surfaces & Backgrounds -->
+    <Color x:Key="Surface">#CC0D1B3E</Color>          <!-- Glass dark (80% opaque) -->
+    <Color x:Key="SurfaceRaised">#CC1A2744</Color>    <!-- Raised glass panel -->
+    <Color x:Key="PageBackground">#050B1F</Color>     <!-- Space navy -->
+
+    <!-- Glass-specific -->
+    <Color x:Key="GlassSurface">#CC0D1B3E</Color>    <!-- Card glass bg -->
+    <Color x:Key="GlassBorder">#553B82F6</Color>      <!-- Glowing blue rim -->
+    <Color x:Key="GlassBorderBright">#9960A5FA</Color><!-- Bright glass rim -->
+    <Color x:Key="GlassInput">#33162440</Color>       <!-- Input field tint -->
+
+    <!-- Glow palette (for inline use) -->
+    <Color x:Key="GlowCyan">#00B4D8</Color>
+    <Color x:Key="GlowViolet">#8B5CF6</Color>
+    <Color x:Key="GlowPink">#EC4899</Color>
+    <Color x:Key="GlowGreen">#00E5A0</Color>
+
+    <!-- Gradient brushes -->
+    <LinearGradientBrush x:Key="AeroPrimaryGradient" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#00B4D8" Offset="0" />
+        <GradientStop Color="#7C3AED" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="AeroPageGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#050B1F" Offset="0" />
+        <GradientStop Color="#0D1635" Offset="0.5" />
+        <GradientStop Color="#110A2E" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="AeroAccentGradient" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#EC4899" Offset="0" />
+        <GradientStop Color="#8B5CF6" Offset="1" />
+    </LinearGradientBrush>
+
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}" />
+
+</ResourceDictionary>

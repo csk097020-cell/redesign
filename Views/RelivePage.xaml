@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MomentaryMomentos.ViewModels"
+             xmlns:models="clr-namespace:MomentaryMomentos.Models"
+             x:Class="MomentaryMomentos.Views.RelivePage"
+             x:Name="Page"
+             x:DataType="vm:ReliveViewModel"
+             Title="Relive"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#050B1F" Offset="0" />
+            <GradientStop Color="#0D1635" Offset="0.55" />
+            <GradientStop Color="#110A2E" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid>
+    <Grid RowDefinitions="Auto,Auto,*"
+          IsVisible="{Binding IsChoosingMemory, Converter={StaticResource InverseBoolConverter}}">
+
+        <!-- ── Toolbar ── -->
+        <Grid Padding="20,18,20,0" ColumnDefinitions="Auto,*,Auto">
+            <Image Source="logo.png" WidthRequest="32" HeightRequest="32"
+                   Aspect="AspectFit" VerticalOptions="Center" Margin="0,0,10,0" />
+            <Label Grid.Column="1" Text="Your Memories" Style="{StaticResource H2}"
+                   VerticalOptions="Center" />
+            <Button Grid.Column="2" Text="🎲 Surprise"
+                    Style="{StaticResource AccentBtn}"
+                    HeightRequest="40" FontSize="13"
+                    Command="{Binding SurpriseMeCommand}" />
+        </Grid>
+
+        <!-- ── Tag Filter Row ── -->
+        <!-- Shows one chip per tag that appears in at least one memory.
+             Tapping a chip filters the list; tapping again (or "All") clears it. -->
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding FilterTags}"
+                        HeightRequest="52"
+                        Margin="12,10,12,0">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="6" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:FilterTagChip">
+                    <Border StrokeShape="RoundRectangle 18"
+                            StrokeThickness="1.5"
+                            BackgroundColor="{Binding BackgroundDisplay}"
+                            Stroke="{Binding BorderDisplay}"
+                            Padding="0"
+                            Margin="0,6,0,6">
+                        <Button Text="{Binding Name}"
+                                BackgroundColor="Transparent"
+                                TextColor="White"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                HeightRequest="36"
+                                Padding="14,0"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReliveViewModel}},
+                                          Path=SelectTagFilterCommand}"
+                                CommandParameter="{Binding .}" />
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- ── Memories List ── -->
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RefreshCommand}" Margin="0,6,0,0">
+
+            <CollectionView ItemsSource="{Binding FilteredMemories}" Margin="16,0">
+
+                <!-- Empty State -->
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center" Padding="32" Spacing="14">
+                        <Grid HorizontalOptions="Center">
+                            <Ellipse WidthRequest="120" HeightRequest="120"
+                                     HorizontalOptions="Center" VerticalOptions="Center">
+                                <Ellipse.Fill>
+                                    <RadialGradientBrush Center="0.5,0.5" Radius="0.5">
+                                        <GradientStop Color="#3300B4D8" Offset="0" />
+                                        <GradientStop Color="Transparent" Offset="1" />
+                                    </RadialGradientBrush>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <Image Source="logo.png" WidthRequest="72" HeightRequest="72"
+                                   Aspect="AspectFit"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Grid>
+                        <Label Text="No memories yet" Style="{StaticResource H2}"
+                               HorizontalOptions="Center" />
+                        <Label Text="Head to Capture to record your first moment!"
+                               Style="{StaticResource Body}" HorizontalTextAlignment="Center"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Memory">
+
+                        <!-- Memory card — tap anywhere to open full-screen detail -->
+                        <Border Margin="0,7" Padding="0"
+                                StrokeShape="RoundRectangle 20"
+                                StrokeThickness="1"
+                                Stroke="#553B82F6"
+                                BackgroundColor="Transparent">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCardTapped"
+                                                      CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Border.Shadow>
+                                <Shadow Brush="#AA00B4D8" Offset="0,5" Radius="18" Opacity="0.28" />
+                            </Border.Shadow>
+
+                            <Grid HeightRequest="200">
+
+                                <!-- Gradient background placeholder (shows while thumbnail loads) -->
+                                <BoxView>
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="{StaticResource PrimaryDark}" Offset="0" />
+                                            <GradientStop Color="#3B0764" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+
+                                <!-- Empty-state placeholder: shows only when there's no thumbnail
+                                     (the AspectFill thumbnail below covers it when present; on cards
+                                     with a video it sits behind the centred play button) -->
+                                <Image Source="icon_play.png"
+                                       WidthRequest="44" HeightRequest="44" Opacity="0.30"
+                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                       InputTransparent="True" />
+
+                                <!-- Thumbnail frame (remote URL or locally cached JPEG) -->
+                                <Image Source="{Binding DisplayThumbnailSource}" Aspect="AspectFill"
+                                       IsVisible="{Binding DisplayThumbnailSource,
+                                                   Converter={StaticResource StringNotEmptyConverter}}" />
+
+                                <!-- Bottom scrim for readability -->
+                                <BoxView VerticalOptions="End" HeightRequest="140">
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#66000000" Offset="0" />
+                                            <GradientStop Color="#FF000000" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+
+                                <!-- Bottom overlay: colored tag chips → title → date -->
+                                <VerticalStackLayout VerticalOptions="End"
+                                                     Padding="14,0,14,12" Spacing="4">
+
+                                    <!-- Colored tag chips using resolved DisplayTags -->
+                                    <FlexLayout BindableLayout.ItemsSource="{Binding DisplayTags}"
+                                                Wrap="Wrap" Direction="Row">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate x:DataType="models:TagInfo">
+                                                <!-- Shrink=0 keeps the pill at its full text width (FIX 4) -->
+                                                <Border FlexLayout.Shrink="0"
+                                                        BackgroundColor="{Binding Color}"
+                                                        StrokeShape="RoundRectangle 10"
+                                                        StrokeThickness="0"
+                                                        Padding="8,3" Margin="0,0,4,3">
+                                                    <Label Text="{Binding DisplayLabel}" TextColor="White"
+                                                           FontSize="10" FontAttributes="Bold" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </FlexLayout>
+
+                                    <Label Text="{Binding Title}" TextColor="White"
+                                           FontAttributes="Bold" FontSize="15"
+                                           LineBreakMode="TailTruncation" MaxLines="1" />
+                                    <Label Text="{Binding CreatedAtLocal, StringFormat='{0:MMM d, yyyy · h:mm tt}'}"
+                                           TextColor="#AAFFFFFF" FontSize="11" />
+                                </VerticalStackLayout>
+
+                                <!-- Top-right: favorite + delete -->
+                                <HorizontalStackLayout HorizontalOptions="End" VerticalOptions="Start"
+                                                       Padding="8,8" Spacing="6">
+                                    <Border BackgroundColor="#55000000"
+                                            StrokeShape="RoundRectangle 14"
+                                            StrokeThickness="1"
+                                            Stroke="#3300B4D8"
+                                            Padding="8,5">
+                                        <Label Text="{Binding IsFavorite, Converter={StaticResource FavoriteIconConverter}}"
+                                               FontSize="18" TextColor="White" VerticalOptions="Center">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnToggleFavoriteTapped"
+                                                                      CommandParameter="{Binding .}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Border>
+                                    <Button Text="🗑" BackgroundColor="#55000000" TextColor="White"
+                                            CornerRadius="14" HeightRequest="34" WidthRequest="34"
+                                            FontSize="13" Padding="0"
+                                            Clicked="OnDeleteClicked" CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
+
+                                <!-- Centred play button — InputTransparent so taps fall through to the
+                                     card's TapGestureRecognizer. Button.Clicked inside CollectionView items
+                                     is unreliable on iOS due to gesture recognizer conflicts. -->
+                                <Border HorizontalOptions="Center" VerticalOptions="Center"
+                                        StrokeShape="RoundRectangle 32"
+                                        StrokeThickness="0"
+                                        WidthRequest="62" HeightRequest="62"
+                                        InputTransparent="True">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#00B4D8" Offset="0" />
+                                            <GradientStop Color="#7C3AED" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Border.Shadow>
+                                        <Shadow Brush="#AA00B4D8" Offset="0,4" Radius="14" Opacity="0.6" />
+                                    </Border.Shadow>
+                                    <Label Text="▶" TextColor="White" FontSize="22"
+                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                           InputTransparent="True" />
+                                </Border>
+
+                            </Grid>
+                        </Border>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+
+    <Grid IsVisible="{Binding IsChoosingMemory}"
+          BackgroundColor="#050B1F"
+          Padding="32">
+        <VerticalStackLayout HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="18">
+            <ActivityIndicator IsRunning="{Binding IsChoosingMemory}"
+                               Color="#00B4D8"
+                               WidthRequest="58"
+                               HeightRequest="58" />
+            <Label Text="Finding a memory..."
+                   TextColor="White"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+        </VerticalStackLayout>
+    </Grid>
+    </Grid>
+
+</ContentPage>

@@ -1,0 +1,29 @@
+# User-specific secrets — copy appsettings.template.json → appsettings.json and fill in real values
+appsettings.json
+
+# Release keystore — never commit this
+*.jks
+*.keystore
+
+# Build output
+bin/
+obj/
+*.binlog
+
+# IDE
+.vs/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+/Services/AppSettings.cs
+/Services/AppSettings.cs
+
+# Supabase CLI local state
+supabase/.temp/
+
+# Play Console service account key — never commit this
+scripts/play-service-account.json
+*.play-service-account.json

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MomentaryMomentos.ViewModels"
+             x:Class="MomentaryMomentos.Views.TagManagementPage"
+             x:Name="Page"
+             x:DataType="vm:TagManagementViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#050B1F" Offset="0" />
+            <GradientStop Color="#0D1635" Offset="0.55" />
+            <GradientStop Color="#110A2E" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <Grid RowDefinitions="Auto,*" Padding="20,20">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="0,0,0,16">
+            <Button Text="Back"
+                    Style="{StaticResource GhostBtn}"
+                    Clicked="OnBackClicked" />
+            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                <Label Text="Manage Tags" Style="{StaticResource H2}" />
+                <Label Text="Edit, hide, or delete your tags. Hiding a tag pauses its momentos."
+                       Style="{StaticResource Caption}"
+                       Margin="0,2,0,0" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource GlowCyan}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+
+            <Border IsVisible="{Binding HasTags, Converter={StaticResource InverseBoolConverter}}"
+                    BackgroundColor="#1AFFFFFF"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="1"
+                    Stroke="#3300B4D8"
+                    Padding="18"
+                    VerticalOptions="Start">
+                <Label Text="No tags yet."
+                       Style="{StaticResource Body}"
+                       HorizontalTextAlignment="Center" />
+            </Border>
+
+            <CollectionView ItemsSource="{Binding Tags}"
+                            IsVisible="{Binding HasTags}"
+                            SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TagUsageItem">
+                        <Border Margin="0,0,0,10"
+                                Padding="12"
+                                BackgroundColor="#1AFFFFFF"
+                                StrokeShape="RoundRectangle 14"
+                                StrokeThickness="1"
+                                Stroke="#3300B4D8">
+                            <Grid ColumnDefinitions="Auto,*,Auto"
+                                  RowDefinitions="Auto,Auto"
+                                  ColumnSpacing="10"
+                                  RowSpacing="6">
+
+                                <Border WidthRequest="42"
+                                        HeightRequest="42"
+                                        StrokeShape="RoundRectangle 21"
+                                        StrokeThickness="0"
+                                        BackgroundColor="{Binding Color}" />
+
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="2"
+                                                     VerticalOptions="Center">
+                                    <Label Text="{Binding DisplayLabel}"
+                                           TextColor="White"
+                                           FontAttributes="Bold"
+                                           FontSize="16"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="1" />
+                                    <Label Text="{Binding UsageLabel}"
+                                           Style="{StaticResource Caption}"
+                                           FontSize="12" />
+                                </VerticalStackLayout>
+
+                                <Border Grid.Column="2"
+                                        BackgroundColor="#2200B4D8"
+                                        StrokeShape="RoundRectangle 10"
+                                        StrokeThickness="0"
+                                        Padding="8,3"
+                                        VerticalOptions="Center">
+                                    <Label Text="{Binding StatusLabel}"
+                                           TextColor="{StaticResource GlowCyan}"
+                                           FontSize="11"
+                                           FontAttributes="Bold" />
+                                </Border>
+
+                                <Grid Grid.Row="1"
+                                      Grid.ColumnSpan="3"
+                                      ColumnDefinitions="*,*,Auto"
+                                      ColumnSpacing="10"
+                                      Margin="0,4,0,0">
+                                    <Button Text="Edit"
+                                            Style="{StaticResource SecondaryBtn}"
+                                            HeightRequest="42"
+                                            Clicked="OnEditTagClicked"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Grid.Column="1"
+                                            Text="{Binding ToggleLabel}"
+                                            Style="{StaticResource GhostBtn}"
+                                            HeightRequest="42"
+                                            Clicked="OnToggleTagClicked"
+                                            CommandParameter="{Binding .}" />
+                                    <!-- Delete only for user-created tags; built-in defaults are hide-only -->
+                                    <Button Grid.Column="2"
+                                            Text="🗑"
+                                            Style="{StaticResource GhostBtn}"
+                                            TextColor="#FF6B81"
+                                            HeightRequest="42"
+                                            WidthRequest="48"
+                                            Padding="0"
+                                            IsVisible="{Binding IsDeletable}"
+                                            Clicked="OnDeleteTagClicked"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </Grid>
+</ContentPage>

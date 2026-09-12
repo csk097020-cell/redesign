@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MomentaryMomentos.ViewModels"
+             xmlns:models="clr-namespace:MomentaryMomentos.Models"
+             x:Class="MomentaryMomentos.Views.AdminPage"
+             x:DataType="vm:AdminViewModel"
+             Title="Admin Panel"
+             x:Name="AdminPageRef">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#050B1F" Offset="0" />
+            <GradientStop Color="#0D1635" Offset="0.55" />
+            <GradientStop Color="#110A2E" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Refresh" Command="{Binding LoadCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16" Spacing="12">
+
+            <Label Text="🔧  Admin Panel" Style="{StaticResource H2}" />
+            <Label Text="Manage default tags (active/inactive) and create new ones."
+                   Style="{StaticResource Body}" />
+
+            <!-- Status Card -->
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Status" FontAttributes="Bold" TextColor="{StaticResource GlowCyan}" />
+                    <Label Text="{Binding IsAdmin, StringFormat='Admin access: {0}'}" Style="{StaticResource Body}" />
+                    <Label Text="If False, set is_admin = true for your user in Supabase profiles table."
+                           FontSize="12" TextColor="{StaticResource TextMuted}"
+                           IsVisible="{Binding IsAdmin, Converter={StaticResource InverseBoolConverter}}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- System Stats Card -->
+            <Frame Style="{StaticResource Card}" IsVisible="{Binding IsAdmin}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="System Stats" FontAttributes="Bold" FontSize="16"
+                           TextColor="{StaticResource GlowCyan}" />
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
+                            <Label Text="{Binding TotalUsers}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   TextColor="{StaticResource GlowCyan}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Users" Style="{StaticResource Caption}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                            <Label Text="{Binding TotalMemories}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   TextColor="{StaticResource Accent}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Memories" Style="{StaticResource Caption}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
+                            <Label Text="{Binding TotalTags}"
+                                   FontSize="28" FontAttributes="Bold"
+                                   TextColor="{StaticResource GlowGreen}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Tags" Style="{StaticResource Caption}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Subscription Config Card -->
+            <Frame Style="{StaticResource Card}" IsVisible="{Binding IsAdmin}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Subscription Limits" FontAttributes="Bold" FontSize="16"
+                           TextColor="{StaticResource Accent}" />
+                    <Label Text="Changes apply to new uploads immediately. Existing users keep their current memories."
+                           Style="{StaticResource Caption}" />
+
+                    <Label Text="Free tier — max memories" Style="{StaticResource Caption}" />
+                    <Frame Style="{StaticResource GlassInput}">
+                        <Entry Text="{Binding FreeMemoryLimit}" Keyboard="Numeric"
+                               BackgroundColor="Transparent" />
+                    </Frame>
+
+                    <Label Text="Paid tier — max memories" Style="{StaticResource Caption}" />
+                    <Frame Style="{StaticResource GlassInput}">
+                        <Entry Text="{Binding PaidMemoryLimit}" Keyboard="Numeric"
+                               BackgroundColor="Transparent" />
+                    </Frame>
+
+                    <Label Text="Monthly price (USD)" Style="{StaticResource Caption}" />
+                    <Frame Style="{StaticResource GlassInput}">
+                        <Entry Text="{Binding MonthlyPrice, StringFormat='{0:F2}'}" Keyboard="Numeric"
+                               BackgroundColor="Transparent" />
+                    </Frame>
+
+                    <Label Text="Annual price (USD)" Style="{StaticResource Caption}" />
+                    <Frame Style="{StaticResource GlassInput}">
+                        <Entry Text="{Binding AnnualPrice, StringFormat='{0:F2}'}" Keyboard="Numeric"
+                               BackgroundColor="Transparent" />
+                    </Frame>
+
+                    <Button Text="💾  Save Limits" Style="{StaticResource PrimaryBtn}"
+                            Command="{Binding SaveSubscriptionConfigCommand}" Margin="0,6,0,0" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Create Tag Card -->
+            <Frame Style="{StaticResource Card}" IsVisible="{Binding IsAdmin}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Create New Tag" FontAttributes="Bold" FontSize="16"
+                           TextColor="{StaticResource GlowCyan}" />
+
+                    <Label Text="Name" Style="{StaticResource Caption}" />
+                    <Frame Style="{StaticResource GlassInput}">
+                        <Entry Text="{Binding NewTagName}" Placeholder="e.g. Joy"
+                               BackgroundColor="Transparent" />
+                    </Frame>
+
+                    <Button Text="➕  Create Tag" Style="{StaticResource PrimaryBtn}"
+                            Command="{Binding CreateCommand}" Margin="0,6,0,0" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Tags List -->
+            <Label Text="All Tags" Style="{StaticResource H2}" IsVisible="{Binding IsAdmin}" />
+
+            <CollectionView ItemsSource="{Binding Tags}" SelectionMode="None"
+                            IsVisible="{Binding IsAdmin}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Tag">
+                        <Frame Style="{StaticResource Card}" Margin="0,4">
+                            <VerticalStackLayout Spacing="10">
+
+                                <!-- Tag row: swatch | name+color | buttons -->
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="10">
+
+                                    <!-- Color swatch -->
+                                    <Border WidthRequest="44" HeightRequest="44"
+                                            StrokeShape="RoundRectangle 22"
+                                            StrokeThickness="0"
+                                            BackgroundColor="{Binding Color}"
+                                            HorizontalOptions="Center" VerticalOptions="Center" />
+
+                                    <!-- Name -->
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label Text="{Binding DisplayLabel}" FontAttributes="Bold" FontSize="15" />
+                                    </VerticalStackLayout>
+
+                                    <!-- Edit button -->
+                                    <Button Grid.Column="2"
+                                            Text="✏️"
+                                            Command="{Binding Source={x:Reference AdminPageRef}, Path=BindingContext.StartEditTagCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#221E3264"
+                                            TextColor="White"
+                                            BorderColor="#553B82F6"
+                                            BorderWidth="1"
+                                            CornerRadius="14"
+                                            HeightRequest="36" WidthRequest="44"
+                                            FontSize="14"
+                                            Padding="0" />
+
+                                    <!-- Toggle Active button -->
+                                    <Button Grid.Column="3"
+                                            Text="{Binding IsActive, StringFormat='Active: {0}'}"
+                                            Command="{Binding Source={x:Reference AdminPageRef}, Path=BindingContext.ToggleActiveCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#221E3264"
+                                            TextColor="{StaticResource GlowCyan}"
+                                            BorderColor="#553B82F6"
+                                            BorderWidth="1"
+                                            CornerRadius="14"
+                                            HeightRequest="36"
+                                            FontSize="12"
+                                            Padding="10,0" />
+
+                                    <!-- Delete button -->
+                                    <Button Grid.Column="4"
+                                            Text="🗑"
+                                            Command="{Binding Source={x:Reference AdminPageRef}, Path=BindingContext.DeleteTagCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#33FF4D6A"
+                                            TextColor="#FF4D6A"
+                                            BorderColor="#55FF4D6A"
+                                            BorderWidth="1"
+                                            CornerRadius="14"
+                                            HeightRequest="36" WidthRequest="44"
+                                            FontSize="14"
+                                            Padding="0" />
+                                </Grid>
+
+                                <!-- Inline edit form — visible only for the tag being edited -->
+                                <Border BackgroundColor="#CC0D1B3E"
+                                        StrokeShape="RoundRectangle 14"
+                                        StrokeThickness="1"
+                                        Stroke="#553B82F6"
+                                        Padding="14,12">
+                                    <Border.IsVisible>
+                                        <MultiBinding Converter="{StaticResource StringEqualMultiConverter}">
+                                            <Binding Source="{x:Reference AdminPageRef}" Path="BindingContext.EditingTagId" />
+                                            <Binding Path="Id" />
+                                        </MultiBinding>
+                                    </Border.IsVisible>
+                                    <VerticalStackLayout Spacing="8">
+                                        <Label Text="Edit Tag" TextColor="{StaticResource GlowCyan}"
+                                               FontSize="13" FontAttributes="Bold" />
+
+                                        <Label Text="Name" Style="{StaticResource Caption}" />
+                                        <Frame Style="{StaticResource GlassInput}" Padding="10,0">
+                                            <Entry Text="{Binding Source={x:Reference AdminPageRef}, Path=BindingContext.EditTagName}"
+                                                   BackgroundColor="Transparent" />
+                                        </Frame>
+
+                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
+                                            <Button Grid.Column="0" Text="Save"
+                                                    Style="{StaticResource PrimaryBtn}"
+                                                    HeightRequest="40"
+                                                    Command="{Binding Source={x:Reference AdminPageRef}, Path=BindingContext.SaveEditTagCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            <Button Grid.Column="1" Text="Cancel"
+                                                    Style="{StaticResource SecondaryBtn}"
+                                                    HeightRequest="40"
+                                                    Command="{Binding Source={x:Reference AdminPageRef}, Path=BindingContext.CancelEditTagCommand}" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Border>
+
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- ── User Management ── -->
+            <Label Text="Users" Style="{StaticResource H2}"
+                   IsVisible="{Binding IsAdmin}" Margin="0,16,0,0" />
+
+            <!-- Search + total count -->
+            <Frame Style="{StaticResource Card}" IsVisible="{Binding IsAdmin}" Padding="12,10">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <Frame Style="{StaticResource GlassInput}" Padding="10,0">
+                        <Entry Text="{Binding UserSearch}"
+                               Placeholder="Search by name or email…"
+                               BackgroundColor="Transparent" />
+                    </Frame>
+                    <Label Grid.Column="1"
+                           Text="{Binding TotalUsers, StringFormat='{0} users'}"
+                           TextColor="{StaticResource TextMuted}"
+                           FontSize="12"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Frame>
+
+            <CollectionView ItemsSource="{Binding FilteredUsers}" SelectionMode="None"
+                            IsVisible="{Binding IsAdmin}">
+                <CollectionView.EmptyView>
+                    <Label Text="No users found." Style="{StaticResource Body}"
+                           HorizontalOptions="Center" Margin="0,12" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:AdminUserSummary">
+                        <Frame Style="{StaticResource Card}" Margin="0,4">
+                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto,Auto"
+                                  ColumnSpacing="8" RowSpacing="6">
+
+                                <!-- Name + email/id -->
+                                <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                        <Label Text="{Binding DisplayName}"
+                                               FontAttributes="Bold" FontSize="14"
+                                               TextColor="White" VerticalOptions="Center" />
+                                        <Border Grid.Column="1"
+                                                BackgroundColor="#220077A8"
+                                                StrokeShape="RoundRectangle 8"
+                                                StrokeThickness="1"
+                                                Stroke="{StaticResource GlowCyan}"
+                                                Padding="6,2"
+                                                IsVisible="{Binding IsAdmin}">
+                                            <Label Text="Admin" TextColor="{StaticResource GlowCyan}"
+                                                   FontSize="10" FontAttributes="Bold" />
+                                        </Border>
+                                    </Grid>
+                                    <Label Text="{Binding Email, TargetNullValue={Binding ShortId}}"
+                                           Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+
+                                <!-- Memory count -->
+                                <VerticalStackLayout Grid.Row="0" Grid.Column="1"
+                                                     HorizontalOptions="Center" VerticalOptions="Center"
+                                                     Spacing="0">
+                                    <Label Text="{Binding MemoryCount}"
+                                           FontSize="18" FontAttributes="Bold"
+                                           TextColor="{StaticResource GlowCyan}"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="clips" Style="{StaticResource Caption}"
+                                           HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+
+                                <!-- Action buttons -->
+                                <VerticalStackLayout Grid.Row="0" Grid.Column="2"
+                                                     Spacing="6" VerticalOptions="Center">
+                                    <Button Text="{Binding IsAdmin, Converter={StaticResource AdminLabelConverter}}"
+                                            BackgroundColor="#221E3264"
+                                            TextColor="{StaticResource GlowCyan}"
+                                            BorderColor="#553B82F6"
+                                            BorderWidth="1"
+                                            CornerRadius="12"
+                                            HeightRequest="32"
+                                            FontSize="11"
+                                            Padding="10,0"
+                                            Command="{Binding Source={x:Reference AdminPageRef},
+                                                      Path=BindingContext.ToggleUserAdminCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="Delete"
+                                            BackgroundColor="#33FF4D6A"
+                                            TextColor="#FF4D6A"
+                                            BorderColor="#55FF4D6A"
+                                            BorderWidth="1"
+                                            CornerRadius="12"
+                                            HeightRequest="32"
+                                            FontSize="11"
+                                            Padding="10,0"
+                                            Command="{Binding Source={x:Reference AdminPageRef},
+                                                      Path=BindingContext.DeleteUserCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </VerticalStackLayout>
+
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Status / Error -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{StaticResource GlowCyan}"
+                               IsVisible="{Binding IsBusy}" HorizontalOptions="Center" />
+            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}"
+                   IsVisible="{Binding HasError}" HorizontalOptions="Center" FontSize="13" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
