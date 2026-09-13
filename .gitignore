@@ -18,6 +18,9 @@ obj/
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code local session state
+.claude/scheduled_tasks.lock
 /Services/AppSettings.cs
 /Services/AppSettings.cs
 
