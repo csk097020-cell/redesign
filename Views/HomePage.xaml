@@ -36,17 +36,17 @@
                 <!-- Keepsake stats lead the page: the data before the actions. -->
                 <Grid ColumnDefinitions="*,Auto,*,Auto,*" Padding="8,2">
                     <VerticalStackLayout HorizontalOptions="Center">
-                        <Label Text="{Binding TotalMemories}" FontSize="24" TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="{Binding TotalMemories}" FontSize="24" TextColor="{StaticResource Accent}" HorizontalOptions="Center" />
                         <Label Text="MOMENTOS" FontSize="9" CharacterSpacing="1.4" TextColor="{StaticResource TextMuted}" />
                     </VerticalStackLayout>
                     <BoxView Grid.Column="1" WidthRequest="1" HeightRequest="38" BackgroundColor="#BEB69D" VerticalOptions="Center" />
                     <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
-                        <Label Text="{Binding Favorites}" FontSize="24" TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="{Binding Favorites}" FontSize="24" TextColor="{StaticResource GlowViolet}" HorizontalOptions="Center" />
                         <Label Text="FAVORITES" FontSize="9" CharacterSpacing="1.1" TextColor="{StaticResource TextMuted}" />
                     </VerticalStackLayout>
                     <BoxView Grid.Column="3" WidthRequest="1" HeightRequest="38" BackgroundColor="#BEB69D" VerticalOptions="Center" />
                     <VerticalStackLayout Grid.Column="4" HorizontalOptions="Center">
-                        <Label Text="{Binding Categories}" FontSize="24" TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="{Binding Categories}" FontSize="24" TextColor="{StaticResource GlowCyan}" HorizontalOptions="Center" />
                         <Label Text="TAGS" FontSize="9" CharacterSpacing="1.4" TextColor="{StaticResource TextMuted}" />
                     </VerticalStackLayout>
                 </Grid>
