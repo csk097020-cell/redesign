@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:views="clr-namespace:MomentaryMomentos.Views"
+             x:Class="MomentaryMomentos.Views.VideoPlayerPage"
+             x:DataType="views:VideoPlayerPage"
+             BackgroundColor="Black"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="*,Auto">
+
+        <!-- Video Player using MediaElement from CommunityToolkit.Maui -->
+        <toolkit:MediaElement x:Name="Player"
+                              Source="{Binding PlayerSource}"
+                              ShouldAutoPlay="True"
+                              ShouldShowPlaybackControls="True"
+                              ShouldLoopPlayback="False"
+                              MediaFailed="OnMediaFailed"
+                              MediaEnded="OnMediaEnded"
+                              Grid.Row="0" />
+
+        <!-- Controls Bar -->
+        <Grid Grid.Row="1" BackgroundColor="{StaticResource Mist100}" Padding="16,12"
+              ColumnDefinitions="Auto,*,Auto">
+            <Button Text="← Back" BackgroundColor="Transparent" TextColor="White"
+                    Grid.Column="0" Command="{Binding GoBackCommand}" HeightRequest="44" />
+            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" Spacing="2">
+                <Label Text="{Binding Title}" TextColor="White"
+                       HorizontalOptions="Center" FontAttributes="Bold" />
+                <Label Text="{Binding RelativeRecordedAt}" TextColor="#AAFFFFFF"
+                       FontSize="11" HorizontalOptions="Center"
+                       IsVisible="{Binding HasRelativeRecordedAt}" />
+            </VerticalStackLayout>
+            <Button Text="{Binding FavoriteIcon}" BackgroundColor="Transparent" TextColor="{StaticResource Accent}"
+                    Grid.Column="2" Command="{Binding ToggleFavoriteCommand}" HeightRequest="44"
+                    FontSize="22" />
+        </Grid>
+
+    </Grid>
+</ContentPage>

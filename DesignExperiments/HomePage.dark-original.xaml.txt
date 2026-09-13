@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MomentaryMomentos.ViewModels"
+             xmlns:models="clr-namespace:MomentaryMomentos.Models"
+             xmlns:conv="clr-namespace:MomentaryMomentos.Converters"
+             x:Class="MomentaryMomentos.Views.HomePage"
+             x:DataType="vm:HomeViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#050B1F" Offset="0" />
+            <GradientStop Color="#0D1635" Offset="0.55" />
+            <GradientStop Color="#110A2E" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+        <ScrollView>
+            <VerticalStackLayout Padding="20,20" Spacing="0">
+
+                <!-- Header — app name gets the full width so it never wraps; the
+                     How it works / Sign Out buttons live on their own row below. -->
+                <VerticalStackLayout Margin="0,0,0,18" Spacing="10">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Image x:Name="LogoImage"
+                               Source="logo.png"
+                               WidthRequest="44"
+                               HeightRequest="44"
+                               VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                            <!-- FontSize is managed by FitTitleToWidth in code-behind: starts at
+                                 25 and shrinks only as much as the current screen width requires,
+                                 so the full name always fits on one line on any device. -->
+                            <Label x:Name="TitleLabel"
+                                   Text="Momentary Momentos" Style="{StaticResource H2}"
+                                   FontSize="25"
+                                   LineBreakMode="NoWrap" MaxLines="1"
+                                   SizeChanged="OnTitleSizeChanged" />
+                            <Label Text="{Binding ConnectionStatus}" Style="{StaticResource Caption}" Margin="0,2,0,0"
+                                   IsVisible="{Binding IsOffline}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Button Text="❔ How it works" Style="{StaticResource GhostBtn}"
+                                Clicked="OnHelpClicked" />
+                        <Button Text="Sign Out" Style="{StaticResource GhostBtn}"
+                                Command="{Binding SignOutCommand}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Stats Row -->
+                <Grid ColumnDefinitions="*,*,*,*" RowDefinitions="Auto"
+                      ColumnSpacing="6" RowSpacing="0" Margin="0,0,0,12">
+                    <!-- Total -->
+                    <Frame Style="{StaticResource Card}" Margin="0" Padding="8">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="1">
+                            <Label Text="{Binding TotalMemories}" FontSize="20" FontAttributes="Bold"
+                                   TextColor="{StaticResource GlowCyan}" HorizontalOptions="Center" />
+                            <Label Text="Memories" Style="{StaticResource Caption}" FontSize="9" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <!-- Favorites -->
+                    <Frame Grid.Column="1" Style="{StaticResource Card}" Margin="0" Padding="8">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="1">
+                            <Label Text="{Binding Favorites}" FontSize="20" FontAttributes="Bold"
+                                   TextColor="{StaticResource Accent}" HorizontalOptions="Center" />
+                            <Label Text="Favorites" Style="{StaticResource Caption}" FontSize="9" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <!-- This Week -->
+                    <Frame Grid.Column="2" Style="{StaticResource Card}" Margin="0" Padding="8">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="1">
+                            <Label Text="{Binding ThisWeek}" FontSize="20" FontAttributes="Bold"
+                                   TextColor="{StaticResource GlowGreen}" HorizontalOptions="Center" />
+                            <Label Text="Week" Style="{StaticResource Caption}" FontSize="9" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <!-- Categories -->
+                    <Frame Grid.Column="3" Style="{StaticResource Card}" Margin="0" Padding="8">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ShowCategoriesCommand}" />
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="1">
+                            <Label Text="{Binding Categories}" FontSize="20" FontAttributes="Bold"
+                                   TextColor="#F59E0B" HorizontalOptions="Center" />
+                            <Label Text="Tags" Style="{StaticResource Caption}" FontSize="9" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- Storage Card -->
+                <Frame Style="{StaticResource Card}" Margin="0,0,0,14" Padding="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout>
+                            <Label Text="Storage Used" Style="{StaticResource Caption}" FontSize="10" />
+                            <Label Text="{Binding StorageEstimate}" FontSize="14" FontAttributes="Bold"
+                                   TextColor="{StaticResource GlowCyan}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" HorizontalOptions="End">
+                            <Label Text="Trend" Style="{StaticResource Caption}" FontSize="10" HorizontalOptions="End" />
+                            <Label Text="{Binding Trend}" FontSize="14" FontAttributes="Bold"
+                                   TextColor="{StaticResource GlowGreen}" HorizontalOptions="End" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Frame>
+
+                <!-- ── Quick Actions ── -->
+                <VerticalStackLayout Spacing="12" Margin="0,0,0,24">
+                    <Button Text="🎬 Capture"
+                            Style="{StaticResource PrimaryBtn}"
+                            Margin="0"
+                            HorizontalOptions="Fill"
+                            HeightRequest="86"
+                            FontSize="20"
+                            FontAttributes="Bold"
+                            Clicked="OnCaptureClicked" />
+                    <Button Text="🎲 Relive"
+                            Style="{StaticResource SecondaryBtn}"
+                            Margin="0"
+                            HorizontalOptions="Fill"
+                            HeightRequest="86"
+                            FontSize="20"
+                            FontAttributes="Bold"
+                            Clicked="OnReliveClicked" />
+                    <Button Text="📂 Upload"
+                            Style="{StaticResource SecondaryBtn}"
+                            Margin="0"
+                            HorizontalOptions="Fill"
+                            HeightRequest="86"
+                            FontSize="20"
+                            FontAttributes="Bold"
+                            Clicked="OnUploadClicked" />
+                </VerticalStackLayout>
+
+                <!-- ── Today's Featured Memory ────────────────────────────── -->
+                <Frame IsVisible="{Binding HasFeaturedMemory}"
+                       Style="{StaticResource Card}" Margin="0,0,0,22" Padding="0"
+                       BackgroundColor="Transparent">
+                    <Frame.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#1A00B4D8" Offset="0" />
+                            <GradientStop Color="#1A6D28E7" Offset="1" />
+                        </LinearGradientBrush>
+                    </Frame.Background>
+
+                    <!-- Tapping anywhere navigates to the featured clip -->
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PlayFeaturedCommand}" />
+                    </Frame.GestureRecognizers>
+
+                    <Grid RowDefinitions="Auto,160,Auto">
+
+                        <!-- Header row: subtitle + "Play" label -->
+                        <Grid ColumnDefinitions="*,Auto" Padding="14,12,14,0">
+                            <Label Text="{Binding FeaturedSubtitle}"
+                                   TextColor="{StaticResource GlowCyan}"
+                                   FontSize="12" FontAttributes="Bold"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   Text="▶ Play"
+                                   TextColor="{StaticResource GlowCyan}"
+                                   FontSize="12" FontAttributes="Bold"
+                                   VerticalOptions="Center" />
+                        </Grid>
+
+                        <!-- Thumbnail area -->
+                        <Grid Grid.Row="1" Margin="14,8,14,0">
+                            <Border StrokeShape="RoundRectangle 14"
+                                    StrokeThickness="1"
+                                    Stroke="#4400B4D8"
+                                    BackgroundColor="#1A3B82F6"
+                                    HeightRequest="160">
+
+                                <!-- Gradient placeholder -->
+                                <BoxView>
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#1A0D1635" Offset="0" />
+                                            <GradientStop Color="#3B0764" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+                            </Border>
+
+                            <!-- Thumbnail image overlaid -->
+                            <Border StrokeShape="RoundRectangle 14"
+                                    StrokeThickness="0"
+                                    Margin="14,8,14,0"
+                                    IsVisible="{Binding FeaturedMemory.DisplayThumbnailSource,
+                                                Converter={StaticResource StringNotEmptyConverter}}">
+                                <Image Source="{Binding FeaturedMemory.DisplayThumbnailSource}"
+                                       Aspect="AspectFill"
+                                       HeightRequest="160" />
+                            </Border>
+
+                            <!-- Play icon overlay -->
+                            <Border HorizontalOptions="Center" VerticalOptions="Center"
+                                    BackgroundColor="#99000000"
+                                    StrokeShape="RoundRectangle 36"
+                                    StrokeThickness="0"
+                                    WidthRequest="52" HeightRequest="52">
+                                <Label Text="▶" TextColor="White" FontSize="22"
+                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                       Margin="4,0,0,0" />
+                            </Border>
+
+                            <!-- Favorite star -->
+                            <Border HorizontalOptions="End" VerticalOptions="Start"
+                                    BackgroundColor="#55000000"
+                                    StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="0"
+                                    Padding="6,3" Margin="0,6,6,0"
+                                    IsVisible="{Binding FeaturedMemory.IsFavorite}">
+                                <Label Text="⭐" FontSize="14" />
+                            </Border>
+                        </Grid>
+
+                        <!-- Title + tags + date -->
+                        <VerticalStackLayout Grid.Row="2" Padding="14,8,14,14" Spacing="4">
+                            <Label Text="{Binding FeaturedMemory.Title}"
+                                   TextColor="White"
+                                   FontSize="15" FontAttributes="Bold"
+                                   LineBreakMode="TailTruncation" MaxLines="1" />
+                            <Grid ColumnDefinitions="*,Auto">
+                                <FlexLayout BindableLayout.ItemsSource="{Binding FeaturedMemory.DisplayTags}"
+                                            Wrap="Wrap" Direction="Row">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:TagInfo">
+                                            <Border BackgroundColor="{Binding Color}"
+                                                    StrokeShape="RoundRectangle 8"
+                                                    StrokeThickness="0"
+                                                    Padding="6,2" Margin="0,0,4,0">
+                                                <Label Text="{Binding DisplayLabel}" TextColor="White"
+                                                       FontSize="9" FontAttributes="Bold" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </FlexLayout>
+                                <Label Grid.Column="1"
+                                       Text="{Binding FeaturedMemory.CreatedAtLocal, StringFormat='{0:MMM d, yyyy}'}"
+                                       TextColor="#AAFFFFFF" FontSize="10"
+                                       VerticalOptions="End" />
+                            </Grid>
+                        </VerticalStackLayout>
+
+                    </Grid>
+                </Frame>
+
+
+                <!-- Recent Memories heading -->
+                <Label Text="Recent Memories" Style="{StaticResource H2}" Margin="0,0,0,12" />
+
+                <!-- Empty State -->
+                <Frame Style="{StaticResource Card}" IsVisible="{Binding HasNoMemories}" Margin="0,0,0,16">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="10" Padding="16">
+                        <Label Text="🌟" FontSize="44" HorizontalOptions="Center" />
+                        <Label Text="No memories yet!" Style="{StaticResource H2}" HorizontalOptions="Center" />
+                        <Label Text="Tap Capture to record your first 10-second moment"
+                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Recent Memories — thumbnail cards matching Relive page style -->
+                <CollectionView ItemsSource="{Binding RecentMemories}"
+                                IsVisible="{Binding HasMemories}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Memory">
+                            <Border Margin="0,5" Padding="0"
+                                    StrokeShape="RoundRectangle 18"
+                                    StrokeThickness="1"
+                                    Stroke="#553B82F6"
+                                    BackgroundColor="Transparent">
+                                <Border.Shadow>
+                                    <Shadow Brush="#AA00B4D8" Offset="0,4" Radius="14" Opacity="0.22" />
+                                </Border.Shadow>
+
+                                <Grid HeightRequest="160">
+
+                                    <!-- Gradient placeholder -->
+                                    <BoxView>
+                                        <BoxView.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="{StaticResource PrimaryDark}" Offset="0" />
+                                                <GradientStop Color="#3B0764" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </BoxView.Background>
+                                    </BoxView>
+
+                                    <!-- Empty-state placeholder: shows only when there's no thumbnail
+                                         (the AspectFill thumbnail below covers it when present) -->
+                                    <Image Source="icon_play.png"
+                                           WidthRequest="44" HeightRequest="44" Opacity="0.30"
+                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                           InputTransparent="True" />
+
+                                    <!-- Thumbnail -->
+                                    <Image Source="{Binding DisplayThumbnailSource}" Aspect="AspectFill"
+                                           IsVisible="{Binding DisplayThumbnailSource,
+                                                       Converter={StaticResource StringNotEmptyConverter}}" />
+
+                                    <!-- Bottom scrim -->
+                                    <BoxView VerticalOptions="End" HeightRequest="110">
+                                        <BoxView.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                <GradientStop Color="#66000000" Offset="0" />
+                                                <GradientStop Color="#FF000000" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </BoxView.Background>
+                                    </BoxView>
+
+                                    <!-- Bottom: tags + title + date -->
+                                    <VerticalStackLayout VerticalOptions="End"
+                                                         Padding="12,0,12,10" Spacing="3">
+                                        <FlexLayout BindableLayout.ItemsSource="{Binding DisplayTags}"
+                                                    Wrap="Wrap" Direction="Row">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate x:DataType="models:TagInfo">
+                                                    <Border BackgroundColor="{Binding Color}"
+                                                            StrokeShape="RoundRectangle 8"
+                                                            StrokeThickness="0"
+                                                            Padding="6,2" Margin="0,0,4,2">
+                                                        <Label Text="{Binding DisplayLabel}" TextColor="White"
+                                                               FontSize="9" FontAttributes="Bold" />
+                                                    </Border>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </FlexLayout>
+                                        <Label Text="{Binding Title}" TextColor="White"
+                                               FontAttributes="Bold" FontSize="14"
+                                               LineBreakMode="TailTruncation" MaxLines="1" />
+                                        <Label Text="{Binding CreatedAtLocal, StringFormat='{0:MMM d, yyyy}'}"
+                                               TextColor="#AAFFFFFF" FontSize="10" />
+                                    </VerticalStackLayout>
+
+                                    <!-- Favorite star -->
+                                    <Border HorizontalOptions="End" VerticalOptions="Start"
+                                            BackgroundColor="#55000000"
+                                            StrokeShape="RoundRectangle 12"
+                                            StrokeThickness="0"
+                                            Padding="7,4" Margin="8,8"
+                                            IsVisible="{Binding IsFavorite}">
+                                        <Label Text="⭐" FontSize="16" />
+                                    </Border>
+
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Button Text="Manage Tags"
+                        Style="{StaticResource SecondaryBtn}"
+                        Margin="0,18,0,0"
+                        HorizontalOptions="Fill"
+                        HeightRequest="58"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        Clicked="OnManageTagsClicked" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+
+</ContentPage>

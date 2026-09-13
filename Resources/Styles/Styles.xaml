@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Base type -->
+    <Style TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style TargetType="Entry">
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource TextMuted}" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="Margin" Value="0,4" />
+    </Style>
+
+    <Style TargetType="Editor">
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource TextMuted}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="FontSize" Value="15" />
+    </Style>
+
+    <Style TargetType="DatePicker">
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+    </Style>
+
+    <!-- Olive CTA used by wizard/save actions -->
+    <Style x:Key="PrimaryBtn" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource OliveDark}" />
+        <Setter Property="TextColor" Value="{StaticResource Cream}" />
+        <Setter Property="CornerRadius" Value="24" />
+        <Setter Property="HeightRequest" Value="54" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="Margin" Value="0,6" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#554A4938" Offset="0,5" Radius="12" Opacity="0.25" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Cream outlined button; Home Capture/Relive/Upload all share this visual language -->
+    <Style x:Key="SecondaryBtn" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Cream}" />
+        <Setter Property="TextColor" Value="{StaticResource Ink}" />
+        <Setter Property="BorderColor" Value="{StaticResource Olive}" />
+        <Setter Property="BorderWidth" Value="1.5" />
+        <Setter Property="CornerRadius" Value="22" />
+        <Setter Property="HeightRequest" Value="52" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="Margin" Value="0,4" />
+    </Style>
+
+    <Style x:Key="AccentBtn" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Cream}" />
+        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+        <Setter Property="BorderColor" Value="{StaticResource Accent}" />
+        <Setter Property="BorderWidth" Value="1.5" />
+        <Setter Property="CornerRadius" Value="22" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="FontSize" Value="13" />
+    </Style>
+
+    <Style x:Key="DangerBtn" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="#FFF7F3" />
+        <Setter Property="TextColor" Value="{StaticResource Danger}" />
+        <Setter Property="BorderColor" Value="#DDB4AE" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+
+    <Style x:Key="GhostBtn" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource OliveDark}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HeightRequest" Value="36" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <!-- Cream paper cards -->
+    <Style x:Key="Card" TargetType="Frame">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceRaised}" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Padding" Value="18" />
+        <Setter Property="Margin" Value="0,6" />
+        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="BorderColor" Value="{StaticResource GlassBorder}" />
+    </Style>
+
+    <Style x:Key="GlassInput" TargetType="Frame">
+        <Setter Property="BackgroundColor" Value="{StaticResource Cream}" />
+        <Setter Property="BorderColor" Value="#D8CFB6" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="14,0" />
+        <Setter Property="HasShadow" Value="False" />
+        <Setter Property="HeightRequest" Value="52" />
+    </Style>
+
+    <Style x:Key="H1" TargetType="Label">
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+    </Style>
+
+    <Style x:Key="H2" TargetType="Label">
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+    </Style>
+
+    <Style x:Key="Body" TargetType="Label">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+    </Style>
+
+    <Style x:Key="Caption" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{StaticResource TextMuted}" />
+    </Style>
+
+    <Style x:Key="GlowLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+
+    <!-- Polaroid frame shared by Relive / featured memory surfaces -->
+    <Style x:Key="Polaroid" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource Cream}" />
+        <Setter Property="Stroke" Value="#E2D9C1" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 6" />
+        <Setter Property="Padding" Value="13,13,13,20" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#554A4938" Offset="0,8" Radius="18" Opacity="0.25" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RoundIconButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Cream}" />
+        <Setter Property="TextColor" Value="{StaticResource Ink}" />
+        <Setter Property="BorderColor" Value="#C9C0A8" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="CornerRadius" Value="28" />
+        <Setter Property="HeightRequest" Value="56" />
+        <Setter Property="WidthRequest" Value="56" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="20" />
+    </Style>
+
+</ResourceDictionary>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MomentaryMomentos.ViewModels"
+             x:Class="MomentaryMomentos.Views.ProfilePage"
+             x:DataType="vm:ProfileViewModel"
+             Title="Profile"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F4EBD4" Offset="0" />
+            <GradientStop Color="#E3DCC0" Offset="0.56" />
+            <GradientStop Color="#C8C8A5" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,24" Spacing="16">
+
+            <!-- Header with logo -->
+            <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,6">
+                <Image Source="logo.png" WidthRequest="36" HeightRequest="36"
+                       Aspect="AspectFit" VerticalOptions="Center" Margin="0,0,10,0" />
+                <Label Grid.Column="1" Text="Profile" Style="{StaticResource H2}"
+                       VerticalOptions="Center" />
+            </Grid>
+
+            <!-- User Info Card -->
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="10">
+                    <!-- Avatar with glow ring -->
+                    <Grid HorizontalOptions="Center">
+                        <Ellipse WidthRequest="100" HeightRequest="100" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Ellipse.Fill>
+                                <RadialGradientBrush Center="0.5,0.5" Radius="0.5">
+                                    <GradientStop Color="#3300B4D8" Offset="0" />
+                                    <GradientStop Color="Transparent" Offset="1" />
+                                </RadialGradientBrush>
+                            </Ellipse.Fill>
+                        </Ellipse>
+
+                        <!-- Fallback emoji when no avatar -->
+                        <Label Text="👤" FontSize="52"
+                               HorizontalOptions="Center" VerticalOptions="Center"
+                               IsVisible="{Binding HasAvatar,
+                                           Converter={StaticResource InverseBoolConverter}}" />
+
+                        <!-- Real avatar image -->
+                        <Border StrokeShape="Ellipse"
+                                StrokeThickness="2"
+                                Stroke="#4400B4D8"
+                                WidthRequest="96" HeightRequest="96"
+                                HorizontalOptions="Center" VerticalOptions="Center"
+                                IsVisible="{Binding HasAvatar}">
+                            <Image Source="{Binding AvatarUrl}"
+                                   Aspect="AspectFill"
+                                   WidthRequest="96" HeightRequest="96" />
+                        </Border>
+
+                        <!-- Change photo button overlaid bottom-right -->
+                        <Border BackgroundColor="#DDFFFDF7"
+                                StrokeShape="RoundRectangle 14"
+                                StrokeThickness="0"
+                                Padding="5,3"
+                                HorizontalOptions="End"
+                                VerticalOptions="End"
+                                Margin="0,0,0,0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PickAvatarCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="📷" FontSize="16" />
+                        </Border>
+                    </Grid>
+                    <Label Text="{Binding FullName, TargetNullValue='No Name Set'}"
+                           Style="{StaticResource H2}" HorizontalOptions="Center" />
+                    <Label Text="{Binding Email}" Style="{StaticResource Body}"
+                           HorizontalOptions="Center" />
+                    <!-- Admin badge -->
+                    <Border BackgroundColor="#220077A8"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="1"
+                            Stroke="{StaticResource GlowCyan}"
+                            Padding="14,6"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding IsAdmin}">
+                        <Label Text="⚡ Admin" TextColor="{StaticResource GlowCyan}"
+                               FontAttributes="Bold" FontSize="13" />
+                    </Border>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Edit Profile Form (visible when editing) -->
+            <Frame Style="{StaticResource Card}" IsVisible="{Binding IsEditing}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Edit Profile" FontAttributes="Bold" FontSize="16"
+                           TextColor="{StaticResource GlowCyan}" />
+
+                    <Label Text="Display Name" Style="{StaticResource Caption}" />
+                    <Frame Style="{StaticResource GlassInput}">
+                        <Entry Text="{Binding EditName}"
+                               Placeholder="Your name"
+                               BackgroundColor="Transparent"
+                               ReturnType="Done" />
+                    </Frame>
+
+                    <Label Text="{Binding SaveError}"
+                           TextColor="{StaticResource Danger}"
+                           FontSize="12"
+                           IsVisible="{Binding SaveError,
+                                       Converter={StaticResource StringNotEmptyConverter}}" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
+                        <Button Grid.Column="0"
+                                Text="Save"
+                                Style="{StaticResource PrimaryBtn}"
+                                Command="{Binding SaveProfileCommand}"
+                                IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}" />
+                        <Button Grid.Column="1"
+                                Text="Cancel"
+                                Style="{StaticResource SecondaryBtn}"
+                                Command="{Binding CancelEditCommand}" />
+                    </Grid>
+
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                       Color="{StaticResource GlowCyan}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Actions Card -->
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Account" FontAttributes="Bold" FontSize="16"
+                           TextColor="{StaticResource GlowCyan}" Margin="0,0,0,6" />
+
+                    <Button Text="✏️  Edit Profile" Style="{StaticResource SecondaryBtn}"
+                            Command="{Binding StartEditCommand}"
+                            IsVisible="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}" />
+
+                    <Button Text="⭐  Upgrade to Premium" Style="{StaticResource PrimaryBtn}"
+                            Clicked="OnUpgradeClicked" />
+
+                    <Button Text="🔧  Admin Panel" Style="{StaticResource SecondaryBtn}"
+                            IsVisible="{Binding IsAdmin}" Clicked="OnAdminClicked" />
+
+                    <Button Text="Sign Out" Style="{StaticResource DangerBtn}"
+                            Clicked="OnSignOutClicked" Margin="0,8,0,0" />
+
+                    <BoxView HeightRequest="1" BackgroundColor="#CFC7AE" Margin="0,8" />
+
+                    <Button Text="🗑  Delete Account"
+                            Clicked="OnDeleteAccountClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="#BC5C56"
+                            BorderColor="#88BC5C56"
+                            BorderWidth="1"
+                            CornerRadius="12"
+                            FontSize="13"
+                            Padding="0,10" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- App Info -->
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="About" FontAttributes="Bold" FontSize="16"
+                           TextColor="{StaticResource GlowCyan}" Margin="0,0,0,4" />
+                    <Label Text="Momentary Momentos" Style="{StaticResource Body}" />
+                    <Label Text="{Binding AppVersion}" Style="{StaticResource Caption}" />
+                    <Label Text="Capture life in 10-second moments" Style="{StaticResource Caption}" />
+                    <Label Text="Privacy Policy"
+                           TextColor="{StaticResource GlowCyan}"
+                           FontSize="13"
+                           TextDecorations="Underline"
+                           Margin="0,4,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenPrivacyPolicyCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label Text="Terms of Use"
+                           TextColor="{StaticResource GlowCyan}"
+                           FontSize="13"
+                           TextDecorations="Underline"
+                           Margin="0,4,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenTermsOfUseCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </VerticalStackLayout>
+            </Frame>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{StaticResource GlowCyan}"
+                               IsVisible="{Binding IsBusy}" HorizontalOptions="Center" />
+            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Danger}"
+                   IsVisible="{Binding HasError}" HorizontalTextAlignment="Center" FontSize="13" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

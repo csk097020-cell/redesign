@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Momentary Momentos — warm scrapbook / keepsake palette -->
+    <Color x:Key="Primary">#8A6DC7</Color>
+    <Color x:Key="PrimaryDark">#6652A0</Color>
+    <Color x:Key="PrimaryLight">#B7A4E5</Color>
+    <Color x:Key="Accent">#D84C9A</Color>
+    <Color x:Key="AccentLight">#F2B6D6</Color>
+
+    <!-- Warm neutrals -->
+    <Color x:Key="Mist50">#FBF7EA</Color>
+    <Color x:Key="Mist100">#F4EEDC</Color>
+    <Color x:Key="Mist200">#D9D1B8</Color>
+    <Color x:Key="Mist600">#74705E</Color>
+
+    <!-- Semantic -->
+    <Color x:Key="Success">#788760</Color>
+    <Color x:Key="Warning">#B78A45</Color>
+    <Color x:Key="Danger">#BC5C56</Color>
+    <Color x:Key="Info">#4CB7CF</Color>
+
+    <!-- Text -->
+    <Color x:Key="TextPrimary">#303127</Color>
+    <Color x:Key="TextSecondary">#5F6150</Color>
+    <Color x:Key="TextMuted">#85816E</Color>
+    <Color x:Key="TextOnDark">#FFFDF7</Color>
+
+    <!-- Surfaces -->
+    <Color x:Key="Surface">#F8F2E3</Color>
+    <Color x:Key="SurfaceRaised">#FFFDF7</Color>
+    <Color x:Key="PageBackground">#E9E2CA</Color>
+    <Color x:Key="Cream">#FFFDF7</Color>
+    <Color x:Key="CreamSoft">#F6F0DF</Color>
+    <Color x:Key="Olive">#77785C</Color>
+    <Color x:Key="OliveDark">#5D6049</Color>
+    <Color x:Key="OliveSoft">#C9C9A7</Color>
+    <Color x:Key="Tan">#D7CCAC</Color>
+    <Color x:Key="Ink">#303127</Color>
+
+    <!-- Compatibility aliases: existing pages still reference the old glass keys -->
+    <Color x:Key="GlassSurface">#F8F2E3</Color>
+    <Color x:Key="GlassBorder">#D9D1B8</Color>
+    <Color x:Key="GlassBorderBright">#B9AE90</Color>
+    <Color x:Key="GlassInput">#FFFDF7</Color>
+
+    <!-- Brand accents retained from the logo / earlier app -->
+    <Color x:Key="GlowCyan">#49B9D3</Color>
+    <Color x:Key="GlowViolet">#8B63C9</Color>
+    <Color x:Key="GlowPink">#D84C9A</Color>
+    <Color x:Key="GlowGreen">#788760</Color>
+
+    <LinearGradientBrush x:Key="WarmPageGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#F4EBD4" Offset="0" />
+        <GradientStop Color="#E3DCC0" Offset="0.56" />
+        <GradientStop Color="#C8C8A5" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="AeroPageGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#F4EBD4" Offset="0" />
+        <GradientStop Color="#E3DCC0" Offset="0.56" />
+        <GradientStop Color="#C8C8A5" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="AeroPrimaryGradient" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#D84C9A" Offset="0" />
+        <GradientStop Color="#8A6DC7" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="AeroAccentGradient" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#D84C9A" Offset="0" />
+        <GradientStop Color="#8A6DC7" Offset="1" />
+    </LinearGradientBrush>
+
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}" />
+</ResourceDictionary>

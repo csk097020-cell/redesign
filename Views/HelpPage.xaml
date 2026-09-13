@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MomentaryMomentos.Views.HelpPage"
+             Title="How It Works"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F4EBD4" Offset="0" />
+            <GradientStop Color="#E3DCC0" Offset="0.56" />
+            <GradientStop Color="#C8C8A5" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,20" Spacing="16">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,6">
+                <Image Source="logo.png" WidthRequest="36" HeightRequest="36"
+                       Aspect="AspectFit" VerticalOptions="Center" Margin="0,0,10,0" />
+                <Label Grid.Column="1" Text="How It Works" Style="{StaticResource H2}"
+                       VerticalOptions="Center" />
+                <Button Grid.Column="2" Text="Close" Style="{StaticResource GhostBtn}"
+                        Clicked="OnCloseClicked" />
+            </Grid>
+
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="✨ What is MoMo?" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+                    <Label Text="Momentary Momentos helps you save short 10-second video moments — little snapshots of everyday life you can look back on and relive later."
+                           Style="{StaticResource Body}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="🎬 Capturing a moment" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+                    <Label Text="Tap Capture to record a fresh 10-second clip right away, or Upload to save a video you already have. Add a title, pick the date it happened, and tag how it felt."
+                           Style="{StaticResource Body}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="🏷️ What tags do" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+                    <Label Text="Tags describe how a moment felt or what it was about — Happy, Grateful, Family, Travel, and more. They color-code your memories and let you filter for a mood later. You can add your own anytime."
+                           Style="{StaticResource Body}" />
+                    <Label Text="Need a break from certain memories? Hide a tag in Manage Tags and its momentos are paused — they won't appear in your feed, Surprise Me, or Today's Favorite until you restore the tag. Deleting a tag removes it from your momentos, but never deletes the videos themselves."
+                           Style="{StaticResource Body}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="🎲 Relive, the dice, and swiping" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+                    <Label Text="Relive shows all your memories. Tap Surprise (the dice) for a random one — favorites show up a little more often. While viewing a memory, swipe left or right to move to the next or previous one chronologically, or tap the dice again for another surprise."
+                           Style="{StaticResource Body}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="⭐ Favorites" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+                    <Label Text="Tap the star on any memory to mark it a favorite. Favorited memories show up more often in Surprise Me, and your favorite count is tracked right on the Home screen. Favorites are special: they are never removed automatically — a favorite momento is only ever deleted if you delete it yourself."
+                           Style="{StaticResource Body}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="🗑 Storage, deleting &amp; downloading" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+                    <Label Text="Every momento counts toward your storage. When you reach your limit, new saves pause until you free up space or upgrade — nothing is ever deleted for you automatically."
+                           Style="{StaticResource Body}" />
+                    <Label Text="While viewing a momento, the trash icon permanently deletes it, and the download button (⬇️) saves a copy to your device — a great way to back up a moment before clearing space."
+                           Style="{StaticResource Body}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="🔔 Reminders" FontAttributes="Bold" FontSize="15"
+                           TextColor="{StaticResource GlowCyan}" />
+                    <Label Text="Momentary Momentos sends gentle nudges — a daily challenge, a weekly snapshot, and the occasional flashback to an older momento. They arrive at set times through the day, so you won't see one the moment you turn them on."
+                           Style="{StaticResource Body}" />
+                    <Label Text="Not sure they're working? Send yourself a test — it arrives in about 15 seconds."
+                           Style="{StaticResource Body}" />
+                    <Button x:Name="TestNotificationButton"
+                            Text="Send a test notification"
+                            Style="{StaticResource PrimaryBtn}"
+                            Margin="0,4,0,0" Clicked="OnTestNotificationClicked" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Button Text="Got it!" Style="{StaticResource PrimaryBtn}"
+                    Margin="0,8,0,0" Clicked="OnCloseClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

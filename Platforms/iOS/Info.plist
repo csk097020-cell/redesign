@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+    <key>XSAppIconAssets</key>
+    <string>Assets.xcassets/appicon.appiconset</string>
+
+    <!-- Short home-screen label under the icon. The official name stays in
+         CFBundleName (derived from ApplicationTitle = "Momentary Momentos"). -->
+    <key>CFBundleDisplayName</key>
+    <string>MoMo</string>
+
+    <!-- Camera, microphone, and photo library access — required by Apple for App Store review -->
+    <key>NSCameraUsageDescription</key>
+    <string>Momentary Momentos needs camera access to record your 10-second memories.</string>
+
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Momentary Momentos needs microphone access to record audio with your videos.</string>
+
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Momentary Momentos needs photo library access to pick existing videos for your memories.</string>
+
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Momentary Momentos can save your memory videos to your photo library.</string>
+
+    <!-- Location purpose strings (ITMS-90683). The app never requests location at
+         runtime, but a linked library (.NET MAUI Essentials) references the location
+         APIs, so Apple requires these strings to be present. They are only ever shown
+         if a location prompt appears — which the app does not trigger.
+
+         The text says so plainly: describing a "remember where a momento was captured"
+         feature promised something the app does not do, which contradicts the no-location
+         answer given in App Privacy and Play Data Safety. -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Momentary Momentos does not use your location. This message can only appear because a system component includes location support, and no location data is ever collected or stored.</string>
+
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Momentary Momentos does not use your location. This message can only appear because a system component includes location support, and no location data is ever collected or stored.</string>
+</dict>
+</plist>

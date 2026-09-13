@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "momo-pwa",
+      "runtimeExecutable": ".claude\\run-pwa.cmd",
+      "runtimeArgs": [],
+      "port": 8080
+    }
+  ]
+}

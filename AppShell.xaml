@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:MomentaryMomentos.Views"
+       x:Class="MomentaryMomentos.AppShell"
+       Shell.NavBarIsVisible="False"
+       Shell.TabBarBackgroundColor="#FAF6E8"
+       Shell.TabBarForegroundColor="#D84C9A"
+       Shell.TabBarTitleColor="#5D6049"
+       Shell.TabBarUnselectedColor="#8C8875">
+
+    <ShellContent x:Name="LoginShell"
+                  Route="login"
+                  ContentTemplate="{DataTemplate views:LoginPage}"
+                  Shell.TabBarIsVisible="False" />
+
+    <ShellContent Route="register"
+                  ContentTemplate="{DataTemplate views:RegisterPage}"
+                  Shell.TabBarIsVisible="False" />
+
+    <TabBar x:Name="MainTabs" Route="main">
+        <Tab Title="Home" Icon="icon_home.png" Route="home">
+            <ShellContent Route="home" ContentTemplate="{DataTemplate views:HomePage}" />
+        </Tab>
+        <Tab Title="Capture" Icon="icon_camera.png" Route="capture">
+            <ShellContent Route="capture" ContentTemplate="{DataTemplate views:CapturePage}" />
+        </Tab>
+        <Tab Title="Relive" Icon="dice.png" Route="relive">
+            <ShellContent Route="relive" ContentTemplate="{DataTemplate views:RelivePage}" />
+        </Tab>
+        <Tab Title="Profile" Icon="icon_profile.png" Route="profile">
+            <ShellContent Route="profile" ContentTemplate="{DataTemplate views:ProfilePage}" />
+        </Tab>
+    </TabBar>
+</Shell>

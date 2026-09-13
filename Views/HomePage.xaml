@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MomentaryMomentos.ViewModels"
+             xmlns:models="clr-namespace:MomentaryMomentos.Models"
+             x:Class="MomentaryMomentos.Views.HomePage"
+             x:DataType="vm:HomeViewModel"
+             Shell.NavBarIsVisible="False"
+             Background="{StaticResource WarmPageGradient}">
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+        <ScrollView>
+            <VerticalStackLayout Padding="20,20,20,32" Spacing="18">
+
+                <!-- Brand header from the approved warm redesign -->
+                <Grid ColumnDefinitions="44,*,44">
+                    <Button Text="?" Style="{StaticResource GhostBtn}" FontSize="18"
+                            Clicked="OnHelpClicked" SemanticProperties.Description="How Momentary Momentos works" />
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                        <Image x:Name="LogoImage" Source="logo.png" WidthRequest="76" HeightRequest="76" Aspect="AspectFit" />
+                        <Label x:Name="TitleLabel" Text="MOMENTARY MOMENTOS"
+                               FontSize="15" CharacterSpacing="3.2" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" HorizontalOptions="Center"
+                               LineBreakMode="NoWrap" MaxLines="1" SizeChanged="OnTitleSizeChanged" />
+                        <Label Text="Little moments. A brighter you."
+                               FontSize="15" FontAttributes="Italic"
+                               TextColor="{StaticResource OliveDark}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="2" Text="⚙" Style="{StaticResource GhostBtn}" FontSize="20"
+                            Clicked="OnManageTagsClicked" SemanticProperties.Description="Manage tags" />
+                </Grid>
+
+                <Label Text="{Binding ConnectionStatus}" Style="{StaticResource Caption}"
+                       HorizontalOptions="Center" IsVisible="{Binding IsOffline}" />
+
+                <!-- Keepsake stats lead the page: the data before the actions. -->
+                <Grid ColumnDefinitions="*,Auto,*,Auto,*" Padding="8,2">
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="{Binding TotalMemories}" FontSize="24" TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="MOMENTOS" FontSize="9" CharacterSpacing="1.4" TextColor="{StaticResource TextMuted}" />
+                    </VerticalStackLayout>
+                    <BoxView Grid.Column="1" WidthRequest="1" HeightRequest="38" BackgroundColor="#BEB69D" VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+                        <Label Text="{Binding Favorites}" FontSize="24" TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="FAVORITES" FontSize="9" CharacterSpacing="1.1" TextColor="{StaticResource TextMuted}" />
+                    </VerticalStackLayout>
+                    <BoxView Grid.Column="3" WidthRequest="1" HeightRequest="38" BackgroundColor="#BEB69D" VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="4" HorizontalOptions="Center">
+                        <Label Text="{Binding Categories}" FontSize="24" TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="TAGS" FontSize="9" CharacterSpacing="1.4" TextColor="{StaticResource TextMuted}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,0,0,4">
+                    <Frame Style="{StaticResource Card}" Padding="12" Margin="0">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Storage" Style="{StaticResource Caption}" />
+                            <Label Text="{Binding StorageEstimate}" FontSize="14" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="1" Style="{StaticResource Card}" Padding="12" Margin="0">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="This week" Style="{StaticResource Caption}" />
+                            <Label Text="{Binding ThisWeek, StringFormat='{0} momentos'}" FontSize="14" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- Wide action rows: icon badge, label + one-line description, chevron.
+                     Brand color lives in the badge/border: pink Capture, violet Relive, cyan Upload. -->
+                <VerticalStackLayout Spacing="10" Margin="0,2,0,4">
+                    <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource Accent}"
+                            StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10">
+                        <Border.Shadow><Shadow Brush="#33D84C9A" Offset="0,4" Radius="10" Opacity="0.25" /></Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCaptureRowTapped" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="14">
+                            <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1FD84C9A"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                <ImageButton Source="icon_camera.png" BackgroundColor="Transparent" Padding="0" Clicked="OnCaptureClicked" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="CAPTURE" FontSize="13" FontAttributes="Bold" CharacterSpacing="1.3" TextColor="{StaticResource Ink}" />
+                                <Label Text="Snap a new momento" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource Accent}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
+                    <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource GlowViolet}"
+                            StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10">
+                        <Border.Shadow><Shadow Brush="#338B63C9" Offset="0,4" Radius="10" Opacity="0.25" /></Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnReliveRowTapped" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="14">
+                            <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1F8B63C9"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                <ImageButton Source="dice.png" BackgroundColor="Transparent" Padding="0" Clicked="OnReliveClicked" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="RELIVE" FontSize="13" FontAttributes="Bold" CharacterSpacing="1.3" TextColor="{StaticResource Ink}" />
+                                <Label Text="Roll for a random one" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource GlowViolet}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
+                    <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource GlowCyan}"
+                            StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10">
+                        <Border.Shadow><Shadow Brush="#3349B9D3" Offset="0,4" Radius="10" Opacity="0.25" /></Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnUploadRowTapped" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="14">
+                            <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1F49B9D3"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                <ImageButton Source="icon_upload.png" BackgroundColor="Transparent" Padding="0" Clicked="OnUploadClicked" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="UPLOAD" FontSize="13" FontAttributes="Bold" CharacterSpacing="1.3" TextColor="{StaticResource Ink}" />
+                                <Label Text="Add from your camera roll" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource GlowCyan}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Featured momento = cream keepsake instead of a dark/red frame -->
+                <Border Style="{StaticResource Polaroid}" IsVisible="{Binding HasFeaturedMemory}" Padding="12,12,12,14">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PlayFeaturedCommand}" />
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="FEATURED MOMENTO" FontSize="10" CharacterSpacing="1.6"
+                                   TextColor="{StaticResource OliveDark}" FontAttributes="Bold" />
+                            <Label Grid.Column="1" Text="SEE IT  ›" FontSize="10" CharacterSpacing="1.1"
+                                   TextColor="{StaticResource Accent}" FontAttributes="Bold" />
+                        </Grid>
+                        <Grid ColumnDefinitions="1.15*,0.9*" ColumnSpacing="12">
+                            <Border HeightRequest="150" BackgroundColor="#D8D3C0" StrokeThickness="0" StrokeShape="RoundRectangle 3">
+                                <Grid>
+                                    <Image Source="{Binding FeaturedMemory.DisplayThumbnailSource}" Aspect="AspectFill"
+                                           IsVisible="{Binding FeaturedMemory.DisplayThumbnailSource, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    <Button Text="▶" WidthRequest="48" HeightRequest="48" CornerRadius="24"
+                                            BackgroundColor="#DDFFFDF7" TextColor="{StaticResource OliveDark}"
+                                            HorizontalOptions="Center" VerticalOptions="Center" InputTransparent="True" />
+                                </Grid>
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="6">
+                                <Label Text="{Binding FeaturedMemory.Title}" FontSize="17" FontAttributes="Bold"
+                                       TextColor="{StaticResource Ink}" MaxLines="2" />
+                                <Label Text="{Binding FeaturedMemory.CreatedAtLocal, StringFormat='{0:MMM d, yyyy}'}"
+                                       FontSize="12" FontAttributes="Bold"
+                                       TextColor="{Binding FeaturedMemory.Id, Converter={StaticResource DateAccentColorConverter}}" />
+                                <FlexLayout BindableLayout.ItemsSource="{Binding FeaturedMemory.DisplayTags}" Wrap="Wrap" Direction="Row">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:TagInfo">
+                                            <Border FlexLayout.Shrink="0" BackgroundColor="{Binding Color}" StrokeThickness="0"
+                                                    StrokeShape="RoundRectangle 10" Padding="7,2" Margin="0,0,4,4">
+                                                <Label Text="{Binding DisplayLabel}" TextColor="White" FontSize="9" FontAttributes="Bold" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </FlexLayout>
+                                <Label Text="{Binding FeaturedMemory.Caption}" FontSize="11" FontAttributes="Italic"
+                                       TextColor="{StaticResource TextSecondary}" MaxLines="3"
+                                       IsVisible="{Binding FeaturedMemory.Caption, Converter={StaticResource StringNotEmptyConverter}}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Recent small Polaroids -->
+                <Label Text="Recent Momentos" Style="{StaticResource H2}" FontSize="18" Margin="0,5,0,0"
+                       IsVisible="{Binding HasMemories}" />
+                <CollectionView ItemsSource="{Binding RecentMemories}" IsVisible="{Binding HasMemories}" HeightRequest="225">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="16" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Memory">
+                            <!-- Scattered like a loose stack of photos: each card gets a small, stable tilt keyed off its id. -->
+                            <Border Style="{StaticResource Polaroid}" WidthRequest="150" Padding="8,8,8,11" Margin="6"
+                                    Rotation="{Binding Id, Converter={StaticResource IdToTiltConverter}}">
+                                <VerticalStackLayout Spacing="6">
+                                    <Border HeightRequest="125" BackgroundColor="#D8D3C0" StrokeThickness="0" StrokeShape="RoundRectangle 2">
+                                        <Image Source="{Binding DisplayThumbnailSource}" Aspect="AspectFill"
+                                               IsVisible="{Binding DisplayThumbnailSource, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    </Border>
+                                    <Label Text="{Binding Title}" FontSize="11" FontAttributes="Bold" MaxLines="1" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding CreatedAtLocal, StringFormat='{0:MMM d}'}" FontSize="9" FontAttributes="Bold"
+                                           TextColor="{Binding Id, Converter={StaticResource DateAccentColorConverter}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Border Style="{StaticResource Card}" IsVisible="{Binding HasNoMemories}" Padding="18">
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Image Source="logo.png" WidthRequest="50" HeightRequest="50" Opacity="0.7" />
+                        <Label Text="Your first little moment is waiting." FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" />
+                        <Label Text="Capture ten seconds today. Relive it when you least expect it."
+                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="18">
+                    <Button Text="Manage tags" Style="{StaticResource GhostBtn}" Clicked="OnManageTagsClicked" />
+                    <Button Text="Sign out" Style="{StaticResource GhostBtn}" Command="{Binding SignOutCommand}" />
+                </HorizontalStackLayout>
+                <Label Text="COLLECT A BRIGHTER TOMORROW" FontSize="9" CharacterSpacing="2.8"
+                       TextColor="{StaticResource TextMuted}" HorizontalOptions="Center" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

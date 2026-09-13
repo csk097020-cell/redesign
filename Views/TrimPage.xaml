@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MomentaryMomentos.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="MomentaryMomentos.Views.TrimPage"
+             x:DataType="vm:TrimViewModel"
+             Title="Trim Clip"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F4EBD4" Offset="0" />
+            <GradientStop Color="#E3DCC0" Offset="0.56" />
+            <GradientStop Color="#C8C8A5" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,24" Spacing="16">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,4">
+                <Image Source="logo.png" WidthRequest="32" HeightRequest="32"
+                       Aspect="AspectFit" VerticalOptions="Center" Margin="0,0,10,0" />
+                <Label Grid.Column="1" Text="Trim Your Clip" Style="{StaticResource H2}"
+                       VerticalOptions="Center" />
+                <Button Grid.Column="2" Text="Cancel" Style="{StaticResource GhostBtn}"
+                        Command="{Binding CancelCommand}" />
+            </Grid>
+
+            <Label Text="Pick a 10-second window from your video"
+                   Style="{StaticResource Body}" Margin="0,0,0,4" />
+
+            <!-- ── Video Preview Card ── -->
+            <Frame Style="{StaticResource Card}" Padding="0">
+                <Grid>
+                    <toolkit:MediaElement x:Name="VideoPreview"
+                                          Source="{Binding VideoPath}"
+                                          ShouldAutoPlay="False"
+                                          ShouldShowPlaybackControls="False"
+                                          ShouldLoopPlayback="False"
+                                          ShouldMute="True"
+                                          HeightRequest="220"
+                                          Aspect="AspectFit"
+                                          BackgroundColor="Black" />
+
+                    <!-- Play/pause overlay button -->
+                    <Border x:Name="PlayToggle"
+                            BackgroundColor="#880D1635"
+                            StrokeShape="RoundRectangle 30"
+                            StrokeThickness="1"
+                            Stroke="#553B82F6"
+                            WidthRequest="60" HeightRequest="60"
+                            HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label x:Name="PlayIcon" Text="▶"
+                               FontSize="24" TextColor="White"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnPlayToggleTapped" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+            </Frame>
+
+            <!-- ── Trim Controls Card ── -->
+            <Frame Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="14">
+
+                    <!-- Time range badge -->
+                    <Border BackgroundColor="#2200B4D8"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1"
+                            Stroke="{StaticResource GlowCyan}"
+                            Padding="16,10"
+                            HorizontalOptions="Center">
+                        <Label Text="{Binding TimeRangeLabel}"
+                               FontSize="22" FontAttributes="Bold"
+                               TextColor="{StaticResource GlowCyan}"
+                               HorizontalOptions="Center" />
+                    </Border>
+
+                    <!-- Duration info -->
+                    <Label Text="{Binding DurationInfoLabel}"
+                           Style="{StaticResource Caption}"
+                           HorizontalOptions="Center" />
+
+                    <!-- "Drag to set start" label -->
+                    <Label Text="Drag to set start time"
+                           Style="{StaticResource Body}"
+                           HorizontalOptions="Center" />
+
+                    <!-- Start-time slider -->
+                    <Slider x:Name="StartSlider"
+                            Minimum="0"
+                            Maximum="{Binding MaxStartSeconds}"
+                            Value="{Binding StartSeconds}"
+                            MinimumTrackColor="{StaticResource GlowCyan}"
+                            MaximumTrackColor="{StaticResource Mist200}"
+                            ThumbColor="{StaticResource GlowCyan}"
+                            DragCompleted="OnSliderDragCompleted"
+                            Margin="0,4" />
+
+                    <!-- Tick labels row -->
+                    <Grid>
+                        <Label Text="0:00" Style="{StaticResource Caption}"
+                               HorizontalOptions="Start" />
+                        <Label Text="{Binding DurationInfoLabel}"
+                               Style="{StaticResource Caption}"
+                               HorizontalOptions="Center" IsVisible="False" />
+                        <Label Text="{Binding MaxStartSeconds, StringFormat='{0:F0}s'}"
+                               Style="{StaticResource Caption}"
+                               HorizontalOptions="End" />
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ── Progress during trimming ── -->
+            <Frame Style="{StaticResource Card}" IsVisible="{Binding IsTrimming}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Trimming your clip…"
+                           Style="{StaticResource Body}" HorizontalOptions="Center" />
+                    <ProgressBar Progress="{Binding TrimProgress}"
+                                 ProgressColor="{StaticResource GlowCyan}"
+                                 BackgroundColor="{StaticResource Mist200}" />
+                    <Label Text="{Binding TrimProgress, StringFormat='{0:P0}'}"
+                           TextColor="{StaticResource GlowCyan}"
+                           HorizontalOptions="Center" FontAttributes="Bold" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- ── Trim & Use button ── -->
+            <Button Text="✂️  Trim &amp; Use This Clip"
+                    Style="{StaticResource PrimaryBtn}"
+                    Command="{Binding TrimCommand}"
+                    IsEnabled="{Binding IsTrimming, Converter={StaticResource InverseBoolConverter}}" />
+
+            <!-- Error message -->
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="{StaticResource Danger}"
+                   IsVisible="{Binding HasError}"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   FontSize="13" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

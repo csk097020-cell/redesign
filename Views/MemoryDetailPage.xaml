@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MomentaryMomentos.ViewModels"
+             xmlns:models="clr-namespace:MomentaryMomentos.Models"
+             x:Class="MomentaryMomentos.Views.MemoryDetailPage"
+             x:DataType="vm:MemoryDetailViewModel"
+             Shell.NavBarIsVisible="False"
+             Background="{StaticResource WarmPageGradient}">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Quiet top bar -->
+        <Grid Padding="16,14,16,8" ColumnDefinitions="52,*,52">
+            <Button Text="‹" BackgroundColor="Transparent" TextColor="{StaticResource Ink}"
+                    FontSize="32" Padding="0" Clicked="OnBackClicked" />
+            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="1">
+                <Image Source="logo.png" WidthRequest="28" HeightRequest="28" Aspect="AspectFit" />
+                <Label Text="RELIVE" FontSize="11" CharacterSpacing="2.5"
+                       TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+            <Button Grid.Column="2" Text="🎲" Style="{StaticResource RoundIconButton}"
+                    WidthRequest="44" HeightRequest="44" CornerRadius="22" FontSize="18"
+                    Command="{Binding FindAnotherCommand}"
+                    SemanticProperties.Description="Roll for another momento" />
+        </Grid>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             GUIDED RELIVE: title → date → tags → caption + save
+             Only Relive launches this mode; direct opens from Home use the detail view below.
+             ═══════════════════════════════════════════════════════════════ -->
+        <ScrollView Grid.Row="1" IsVisible="{Binding IsGuidedEditing}">
+            <VerticalStackLayout Padding="22,4,22,34" Spacing="16">
+
+                <Grid ColumnDefinitions="*,Auto" Margin="4,0">
+                    <Label Text="TITLE   ·   DATE   ·   TAGS   ·   CAPTION"
+                           FontSize="9" CharacterSpacing="1.25"
+                           TextColor="{StaticResource TextMuted}" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="{Binding ReliveProgressText}"
+                           FontSize="11" FontAttributes="Bold" TextColor="{StaticResource OliveDark}" />
+                </Grid>
+                <ProgressBar Progress="{Binding ReliveStep, Converter={StaticResource ReliveStepProgressConverter}}"
+                             ProgressColor="{StaticResource Olive}" BackgroundColor="#D8D0B7" HeightRequest="4" />
+
+                <!-- Small Polaroid preview stays with the person throughout the walkthrough -->
+                <Border Style="{StaticResource Polaroid}" Margin="12,2" Padding="10,10,10,14">
+                    <VerticalStackLayout Spacing="6">
+                        <Grid HeightRequest="210">
+                            <Border BackgroundColor="#D8D3C0" StrokeThickness="0" StrokeShape="RoundRectangle 2">
+                                <Grid>
+                                    <Image Source="{Binding CurrentMemory.DisplayThumbnailSource}" Aspect="AspectFill"
+                                           IsVisible="{Binding CurrentMemory.DisplayThumbnailSource, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    <Button Text="▶" WidthRequest="54" HeightRequest="54" CornerRadius="27"
+                                            BackgroundColor="#DDFFFDF7" TextColor="{StaticResource OliveDark}"
+                                            HorizontalOptions="Center" VerticalOptions="Center"
+                                            Command="{Binding PlayCommand}" />
+                                </Grid>
+                            </Border>
+                        </Grid>
+                        <Label Text="{Binding CurrentMemory.Title}" FontSize="14" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" LineBreakMode="TailTruncation" MaxLines="1" />
+                        <Label Text="{Binding CoverDate}" FontSize="10" TextColor="{StaticResource TextMuted}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Step 1: title -->
+                <VerticalStackLayout IsVisible="{Binding IsReliveTitleStep}" Spacing="12">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                        <Label Text="Set a Title" FontSize="24" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="Give this momento a name you'll recognize later."
+                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <Frame Style="{StaticResource GlassInput}" HeightRequest="58">
+                        <Entry Text="{Binding ReliveTitleInput}" Placeholder="Give this moment a title"
+                               MaxLength="80" ReturnType="Done" />
+                    </Frame>
+                    <Button Text="Next  →" Style="{StaticResource PrimaryBtn}"
+                            Command="{Binding ReliveNextStepCommand}" />
+                </VerticalStackLayout>
+
+                <!-- Step 2: date -->
+                <VerticalStackLayout IsVisible="{Binding IsReliveDateStep}" Spacing="12">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                        <Label Text="Confirm the Date" FontSize="24" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="When did this moment happen?"
+                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <Frame Style="{StaticResource GlassInput}" HeightRequest="58">
+                        <DatePicker Date="{Binding ReliveDateInput}"
+                                    MaximumDate="{Binding MaxReliveDate}"
+                                    Format="MMMM d, yyyy" />
+                    </Frame>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Text="←  Back" Style="{StaticResource SecondaryBtn}"
+                                Command="{Binding RelivePreviousStepCommand}" />
+                        <Button Grid.Column="1" Text="Next  →" Style="{StaticResource PrimaryBtn}"
+                                Command="{Binding ReliveNextStepCommand}" />
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- Step 3: tags -->
+                <VerticalStackLayout IsVisible="{Binding IsReliveTagsStep}" Spacing="12">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                        <Label Text="Add Tags" FontSize="24" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="Choose a few words to remember this moment by."
+                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                    <Border BackgroundColor="#66FFFDF7" Stroke="#D8CFB6" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 18" Padding="12">
+                        <ScrollView MaximumHeightRequest="250">
+                            <FlexLayout BindableLayout.ItemsSource="{Binding AllTags}" Wrap="Wrap" Direction="Row">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TagSelection">
+                                        <Border FlexLayout.Shrink="0" Margin="0,0,7,7"
+                                                BackgroundColor="{StaticResource Cream}"
+                                                Stroke="#CFC7AE" StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 18" Padding="0">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Stroke" Value="{StaticResource Accent}" />
+                                                    <Setter Property="StrokeThickness" Value="2" />
+                                                    <Setter Property="BackgroundColor" Value="#FFF9EE" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Button Text="{Binding Tag.DisplayLabel}"
+                                                    BackgroundColor="Transparent"
+                                                    TextColor="{StaticResource Ink}"
+                                                    FontSize="12" HeightRequest="38" Padding="13,0"
+                                                    Clicked="OnRetagTagClicked" CommandParameter="{Binding .}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+                        </ScrollView>
+                    </Border>
+
+                    <Button Text="＋ Add your own tag" Style="{StaticResource SecondaryBtn}"
+                            Command="{Binding CreateCustomTagCommand}" HeightRequest="44" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Text="←  Back" Style="{StaticResource SecondaryBtn}"
+                                Command="{Binding RelivePreviousStepCommand}" />
+                        <Button Grid.Column="1" Text="Next  →" Style="{StaticResource PrimaryBtn}"
+                                Command="{Binding ReliveNextStepCommand}" />
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- Step 4: caption + save -->
+                <VerticalStackLayout IsVisible="{Binding IsReliveCaptionStep}" Spacing="12">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                        <Label Text="Add a Caption" FontSize="24" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="Tell the story behind this moment. Optional, but lovely."
+                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <Frame Style="{StaticResource GlassInput}" HeightRequest="126" Padding="14,8">
+                        <Editor Text="{Binding ReliveCaptionInput}"
+                                Placeholder="What do you want future-you to remember?"
+                                MaxLength="280" AutoSize="TextChanges" />
+                    </Frame>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Text="←  Back" Style="{StaticResource SecondaryBtn}"
+                                Command="{Binding RelivePreviousStepCommand}" />
+                        <Button Grid.Column="1" Text="Save Momento  ♡" Style="{StaticResource PrimaryBtn}"
+                                Command="{Binding SaveGuidedReliveCommand}" />
+                    </Grid>
+                    <Label Text="Your momento stays private unless you choose to share it."
+                           Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             FINAL / NORMAL DETAIL: cream Polaroid + icon activity bar
+             ═══════════════════════════════════════════════════════════════ -->
+        <ScrollView Grid.Row="1" IsVisible="{Binding IsDetailViewVisible}">
+            <VerticalStackLayout Padding="22,4,22,34" Spacing="15">
+
+                <Border Style="{StaticResource Polaroid}" Margin="8,2">
+                    <VerticalStackLayout Spacing="9">
+                        <Grid HeightRequest="360">
+                            <Border BackgroundColor="#D8D3C0" StrokeThickness="0" StrokeShape="RoundRectangle 2">
+                                <Grid>
+                                    <Image Source="{Binding CurrentMemory.DisplayThumbnailSource}" Aspect="AspectFill"
+                                           IsVisible="{Binding CurrentMemory.DisplayThumbnailSource, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    <Button Text="▶" WidthRequest="62" HeightRequest="62" CornerRadius="31"
+                                            BackgroundColor="#DDFFFDF7" TextColor="{StaticResource OliveDark}"
+                                            FontSize="21" HorizontalOptions="Center" VerticalOptions="Center"
+                                            Command="{Binding PlayCommand}" />
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="{Binding CurrentMemory.Title}" FontSize="21" FontAttributes="Bold"
+                                       TextColor="{StaticResource Ink}" />
+                                <Label Text="{Binding CoverDate}" FontSize="11" TextColor="{StaticResource TextMuted}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1"
+                                   Text="{Binding IsCurrentFavorite, Converter={StaticResource FavoriteIconConverter}}"
+                                   FontSize="25" TextColor="{StaticResource Accent}" VerticalOptions="Center" />
+                        </Grid>
+
+                        <FlexLayout BindableLayout.ItemsSource="{Binding CurrentDisplayTags}" Wrap="Wrap" Direction="Row">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:TagInfo">
+                                    <Border FlexLayout.Shrink="0" BackgroundColor="{Binding Color}"
+                                            StrokeThickness="0" StrokeShape="RoundRectangle 12"
+                                            Padding="8,3" Margin="0,0,5,4">
+                                        <Label Text="{Binding DisplayLabel}" TextColor="White" FontSize="10" FontAttributes="Bold" />
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+
+                        <Label Text="{Binding CurrentMemory.Caption}"
+                               Style="{StaticResource Body}" FontAttributes="Italic"
+                               IsVisible="{Binding CurrentMemory.Caption, Converter={StaticResource StringNotEmptyConverter}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Activity bar: favorite, retag, see-less, delete, share -->
+                <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="9" Margin="4,0">
+                    <Button Text="♡" Style="{StaticResource RoundIconButton}"
+                            HorizontalOptions="Center" Command="{Binding ToggleFavoriteCommand}"
+                            SemanticProperties.Description="Favorite momento" />
+                    <Button Grid.Column="1" Text="◇" Style="{StaticResource RoundIconButton}"
+                            HorizontalOptions="Center" Command="{Binding ToggleRetagCommand}"
+                            SemanticProperties.Description="Edit title caption and tags" />
+                    <Button Grid.Column="2" Text="◉̸" Style="{StaticResource RoundIconButton}"
+                            HorizontalOptions="Center" Command="{Binding SeeLessCommand}"
+                            SemanticProperties.Description="See this momento less often" />
+                    <Button Grid.Column="3" Text="⌫" Style="{StaticResource RoundIconButton}"
+                            HorizontalOptions="Center" TextColor="{StaticResource Danger}"
+                            Command="{Binding DeleteCommand}" SemanticProperties.Description="Delete momento" />
+                    <Button Grid.Column="4" Text="↗" Style="{StaticResource RoundIconButton}"
+                            HorizontalOptions="Center" Command="{Binding ShareVideoCommand}"
+                            SemanticProperties.Description="Share or save momento" />
+                </Grid>
+
+                <Grid ColumnDefinitions="Auto,*,Auto" Margin="8,1">
+                    <Button Text="‹" Style="{StaticResource GhostBtn}" FontSize="25"
+                            IsVisible="{Binding HasPrevious}" Command="{Binding PreviousCommand}" />
+                    <Label Grid.Column="1" Text="{Binding PositionLabel}" Style="{StaticResource Caption}"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                    <Button Grid.Column="2" Text="›" Style="{StaticResource GhostBtn}" FontSize="25"
+                            IsVisible="{Binding HasNext}" Command="{Binding NextCommand}" />
+                </Grid>
+
+                <!-- Light edit sheet retained for direct/manual edits -->
+                <Border IsVisible="{Binding IsRetagging}"
+                        BackgroundColor="{StaticResource CreamSoft}"
+                        Stroke="#D8CFB6" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Edit Momento" FontSize="18" FontAttributes="Bold" />
+                        <Label Text="Title" Style="{StaticResource Caption}" />
+                        <Frame Style="{StaticResource GlassInput}">
+                            <Entry Text="{Binding RetagTitleInput}" Placeholder="Title" MaxLength="80" />
+                        </Frame>
+                        <Label Text="Caption" Style="{StaticResource Caption}" />
+                        <Frame Style="{StaticResource GlassInput}" HeightRequest="100" Padding="12,6">
+                            <Editor Text="{Binding RetagCaptionInput}" Placeholder="Caption" MaxLength="280" />
+                        </Frame>
+                        <Label Text="Tags" Style="{StaticResource Caption}" />
+                        <ScrollView MaximumHeightRequest="180">
+                            <FlexLayout BindableLayout.ItemsSource="{Binding AllTags}" Wrap="Wrap" Direction="Row">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TagSelection">
+                                        <Border FlexLayout.Shrink="0" Margin="0,0,6,6"
+                                                BackgroundColor="{StaticResource Cream}"
+                                                Stroke="#CFC7AE" StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 18" Padding="0">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Stroke" Value="{StaticResource Accent}" />
+                                                    <Setter Property="StrokeThickness" Value="2" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Button Text="{Binding Tag.DisplayLabel}" BackgroundColor="Transparent"
+                                                    TextColor="{StaticResource Ink}" FontSize="12" HeightRequest="38" Padding="13,0"
+                                                    Clicked="OnRetagTagClicked" CommandParameter="{Binding .}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+                        </ScrollView>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Text="Save" Style="{StaticResource PrimaryBtn}" Command="{Binding SaveRetagCommand}" />
+                            <Button Grid.Column="1" Text="Cancel" Style="{StaticResource SecondaryBtn}" Command="{Binding ToggleRetagCommand}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Collect moments, not things."
+                       FontSize="14" FontAttributes="Italic" TextColor="{StaticResource OliveDark}"
+                       HorizontalOptions="Center" Margin="0,5" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

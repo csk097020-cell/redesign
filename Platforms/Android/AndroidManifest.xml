@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+		  xmlns:tools="http://schemas.android.com/tools"
+		  package="com.momentarymementos.app">
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="com.android.vending.BILLING" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.CAMERA" />
+	<uses-permission android:name="android.permission.RECORD_AUDIO" />
+	<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+	<!-- Avatar picking (ProfileViewModel.PickPhotoAsync) needs image access too -->
+	<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+	<!-- Android 14+ (API 34) partial media access. Without this, a user who grants
+		 "Select photos and videos" instead of "Allow all" has READ_MEDIA_VIDEO
+		 *denied*, and every pick throws PermissionException. -->
+	<uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+	<!-- Required on Android 13+ (API 33) or notifications never post and the OS never prompts the user -->
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+	<!-- Re-arms scheduled notifications after the device reboots -->
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<!-- Without this, Plugin.LocalNotification silently degrades to inexact alarms,
+		 which Doze on Android 12+ can defer for hours past the scheduled time.
+		 SCHEDULE_EXACT_ALARM is the consent-based permission: NotificationService sets
+		 RequestPermissionToScheduleExactAlarm = true, so the user grants it explicitly. -->
+	<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+	<!-- USE_EXACT_ALARM is auto-granted but Play restricts it to apps whose core
+		 functionality is 'alarm clock' or 'calendar'. A video diary is neither, and the
+		 console blocks the release outright ("you're not eligible to use this permission
+		 and must remove it from your app, across all tracks"). tools:node="remove" strips
+		 it even when Plugin.LocalNotification contributes it through manifest merge. -->
+	<uses-permission android:name="android.permission.USE_EXACT_ALARM" tools:node="remove" />
+	<!-- Required for Android 11+ to access camera and media intents -->
+	<queries>
+		<intent>
+			<action android:name="android.media.action.VIDEO_CAPTURE" />
+		</intent>
+		<intent>
+			<action android:name="android.media.action.IMAGE_CAPTURE" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.PICK" />
+			<data android:mimeType="video/*" />
+		</intent>
+		<!-- MediaPicker falls back to these when the photo picker is unavailable -->
+		<intent>
+			<action android:name="android.intent.action.GET_CONTENT" />
+			<data android:mimeType="video/*" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.OPEN_DOCUMENT" />
+			<data android:mimeType="video/*" />
+		</intent>
+	</queries>
+
+	<application android:label="Momentary Momentos" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:usesCleartextTraffic="false">
+		<!-- Plugin.InAppBilling and Sentry.Maui both transitively include billing.aar
+			 at different versions, causing a manifest merge conflict. tools:node="replace"
+			 drops both library copies and uses this single declaration instead. -->
+		<meta-data android:name="com.google.android.play.billingclient.version"
+				   android:value="8.1.0"
+				   tools:node="replace" />
+		<provider
+			android:name="androidx.core.content.FileProvider"
+			android:authorities="${applicationId}.fileprovider"
+			android:exported="false"
+			android:grantUriPermissions="true">
+			<meta-data
+				android:name="android.support.FILE_PROVIDER_PATHS"
+				android:resource="@xml/file_paths" />
+		</provider>
+	</application>
+</manifest>

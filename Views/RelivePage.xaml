@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MomentaryMomentos.ViewModels"
+             xmlns:models="clr-namespace:MomentaryMomentos.Models"
+             x:Class="MomentaryMomentos.Views.RelivePage"
+             x:Name="Page"
+             x:DataType="vm:ReliveViewModel"
+             Title="Relive"
+             Shell.NavBarIsVisible="False"
+             Background="{StaticResource WarmPageGradient}">
+
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="22,22,22,28" Spacing="18">
+
+                <!-- Brand + title -->
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="5" Margin="0,4,0,4">
+                    <Image Source="logo.png" WidthRequest="54" HeightRequest="54" Aspect="AspectFit" />
+                    <Label Text="RELIVE"
+                           FontSize="20" FontAttributes="Bold" CharacterSpacing="4"
+                           TextColor="{StaticResource Ink}"
+                           HorizontalOptions="Center" />
+                    <Label Text="A little moment goes a long way."
+                           FontSize="14" FontAttributes="Italic"
+                           TextColor="{StaticResource TextSecondary}"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <!-- Keepsake / dice hero -->
+                <Border Style="{StaticResource Polaroid}" Margin="12,6,12,0">
+                    <VerticalStackLayout Spacing="13">
+                        <Grid HeightRequest="235">
+                            <Border BackgroundColor="#DED8C1"
+                                    StrokeShape="RoundRectangle 3"
+                                    StrokeThickness="0">
+                                <Grid>
+                                    <BoxView>
+                                        <BoxView.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#A4A184" Offset="0" />
+                                                <GradientStop Color="#74775F" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </BoxView.Background>
+                                    </BoxView>
+                                    <Image Source="logo.png" WidthRequest="92" HeightRequest="92"
+                                           Opacity="0.70"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <Label Text="Your next momento is waiting."
+                               FontSize="19" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" />
+                        <Label Text="Roll the dice and we'll surface one at random."
+                               Style="{StaticResource Body}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- The dice is now the actual Relive action -->
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="8" Margin="0,4,0,8">
+                    <Label Text="Feeling lucky?" FontSize="16" FontAttributes="Italic"
+                           TextColor="{StaticResource OliveDark}" HorizontalOptions="Center" />
+                    <Border WidthRequest="92" HeightRequest="92"
+                            BackgroundColor="{StaticResource Cream}"
+                            Stroke="{StaticResource Accent}"
+                            StrokeThickness="3"
+                            StrokeShape="RoundRectangle 46"
+                            Padding="15">
+                        <Border.Shadow>
+                            <Shadow Brush="#55D84C9A" Offset="0,4" Radius="14" Opacity="0.30" />
+                        </Border.Shadow>
+                        <ImageButton Source="dice.png"
+                                     BackgroundColor="Transparent"
+                                     Padding="3"
+                                     Clicked="OnDiceClicked"
+                                     SemanticProperties.Description="Roll the dice for a random momento" />
+                    </Border>
+                    <Label Text="ROLL FOR A RANDOM MOMENTO"
+                           FontSize="10" CharacterSpacing="1.7"
+                           TextColor="{StaticResource TextMuted}"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <!-- Browse is still available, but it is secondary to the random ritual. -->
+                <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                    <Label Text="Or choose a momento" Style="{StaticResource H2}" FontSize="18" />
+                    <Label Grid.Column="1" Text="browse" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                </Grid>
+
+                <CollectionView ItemsSource="{Binding FilterTags}" HeightRequest="48" Margin="0,-4,0,0">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="6" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:FilterTagChip">
+                            <Border StrokeShape="RoundRectangle 18"
+                                    StrokeThickness="1"
+                                    BackgroundColor="{StaticResource Cream}"
+                                    Stroke="{Binding BorderDisplay}"
+                                    Padding="0" Margin="0,5,0,5">
+                                <Button Text="{Binding Name}"
+                                        BackgroundColor="Transparent"
+                                        TextColor="{StaticResource Ink}"
+                                        FontSize="11" HeightRequest="34" Padding="13,0"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReliveViewModel}}, Path=SelectTagFilterCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <CollectionView ItemsSource="{Binding FilteredMemories}"
+                                HeightRequest="330"
+                                SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="12" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="24" Spacing="8" HorizontalOptions="Center">
+                            <Label Text="No momentos yet" FontSize="17" FontAttributes="Bold" HorizontalOptions="Center" />
+                            <Label Text="Capture something small today, then come back and roll the dice."
+                                   Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Memory">
+                            <Border Style="{StaticResource Polaroid}" Padding="8,8,8,11" Margin="1">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnCardTapped" CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <VerticalStackLayout Spacing="6">
+                                    <Grid HeightRequest="118">
+                                        <Border BackgroundColor="#D8D3C0" StrokeThickness="0" StrokeShape="RoundRectangle 2">
+                                            <Grid>
+                                                <Image Source="{Binding DisplayThumbnailSource}" Aspect="AspectFill"
+                                                       IsVisible="{Binding DisplayThumbnailSource, Converter={StaticResource StringNotEmptyConverter}}" />
+                                                <Image Source="icon_play.png" WidthRequest="30" HeightRequest="30" Opacity="0.45"
+                                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Grid>
+                                        </Border>
+                                        <Label HorizontalOptions="End" VerticalOptions="Start"
+                                               Margin="0,5,5,0" FontSize="16"
+                                               Text="{Binding IsFavorite, Converter={StaticResource FavoriteIconConverter}}"
+                                               TextColor="{StaticResource Accent}">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnToggleFavoriteTapped" CommandParameter="{Binding .}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+                                    <Label Text="{Binding Title}" FontSize="12" FontAttributes="Bold"
+                                           TextColor="{StaticResource Ink}" LineBreakMode="TailTruncation" MaxLines="1" />
+                                    <Label Text="{Binding CreatedAtLocal, StringFormat='{0:MMM d, yyyy}'}"
+                                           FontSize="9" TextColor="{StaticResource TextMuted}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Short transition after the dice is tapped -->
+        <Grid IsVisible="{Binding IsChoosingMemory}" BackgroundColor="#CCF4EBD4" Padding="32">
+            <Border Style="{StaticResource Polaroid}"
+                    WidthRequest="270" HeightRequest="310"
+                    HorizontalOptions="Center" VerticalOptions="Center">
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="18">
+                    <Image Source="dice.png" WidthRequest="84" HeightRequest="84" />
+                    <ActivityIndicator IsRunning="{Binding IsChoosingMemory}" Color="{StaticResource Accent}" />
+                    <Label Text="Rolling for a brighter moment…"
+                           FontSize="17" FontAttributes="Italic"
+                           TextColor="{StaticResource Ink}"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>
