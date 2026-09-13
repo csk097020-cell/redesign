@@ -9,9 +9,9 @@
 
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#050B1F" Offset="0" />
-            <GradientStop Color="#0D1635" Offset="0.55" />
-            <GradientStop Color="#110A2E" Offset="1" />
+            <GradientStop Color="#F4EBD4" Offset="0" />
+            <GradientStop Color="#E3DCC0" Offset="0.56" />
+            <GradientStop Color="#C8C8A5" Offset="1" />
         </LinearGradientBrush>
     </ContentPage.Background>
 
@@ -36,7 +36,7 @@
                                VerticalOptions="Center" />
 
             <Border IsVisible="{Binding HasTags, Converter={StaticResource InverseBoolConverter}}"
-                    BackgroundColor="#1AFFFFFF"
+                    BackgroundColor="#88FFFDF7"
                     StrokeShape="RoundRectangle 16"
                     StrokeThickness="1"
                     Stroke="#3300B4D8"
@@ -54,7 +54,7 @@
                     <DataTemplate x:DataType="vm:TagUsageItem">
                         <Border Margin="0,0,0,10"
                                 Padding="12"
-                                BackgroundColor="#1AFFFFFF"
+                                BackgroundColor="#88FFFDF7"
                                 StrokeShape="RoundRectangle 14"
                                 StrokeThickness="1"
                                 Stroke="#3300B4D8">
@@ -73,7 +73,7 @@
                                                      Spacing="2"
                                                      VerticalOptions="Center">
                                     <Label Text="{Binding DisplayLabel}"
-                                           TextColor="White"
+                                           TextColor="{StaticResource Ink}"
                                            FontAttributes="Bold"
                                            FontSize="16"
                                            LineBreakMode="TailTruncation"

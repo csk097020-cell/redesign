@@ -7,9 +7,9 @@
 
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#050B1F" Offset="0" />
-            <GradientStop Color="#0D1635" Offset="0.55" />
-            <GradientStop Color="#110A2E" Offset="1" />
+            <GradientStop Color="#F4EBD4" Offset="0" />
+            <GradientStop Color="#E3DCC0" Offset="0.56" />
+            <GradientStop Color="#C8C8A5" Offset="1" />
         </LinearGradientBrush>
     </ContentPage.Background>
 
@@ -63,7 +63,7 @@
                    Text="Momentary Momentos"
                    FontSize="28"
                    FontAttributes="Bold"
-                   TextColor="#E8F4FD"
+                   TextColor="#303127"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"
                    Margin="0,20,0,0"
@@ -74,7 +74,7 @@
             <Label x:Name="Tagline"
                    Text="Your life in 10-second moments"
                    FontSize="14"
-                   TextColor="#00B4D8"
+                   TextColor="#5D6049"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"
                    Margin="0,6,0,0"
@@ -91,14 +91,14 @@
                              Opacity="0"
                              Spacing="10">
             <ActivityIndicator x:Name="Spinner"
-                               Color="#00B4D8"
+                               Color="#D84C9A"
                                IsRunning="True"
                                WidthRequest="32"
                                HeightRequest="32"
                                HorizontalOptions="Center" />
             <Label Text="Loading your moments…"
                    FontSize="12"
-                   TextColor="#4A6285"
+                   TextColor="#74705E"
                    HorizontalOptions="Center" />
         </VerticalStackLayout>
 

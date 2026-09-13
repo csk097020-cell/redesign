@@ -402,6 +402,35 @@ public sealed class SupabaseService
         }
     }
 
+    /// <summary>Guided Relive save — updates the editable momento details, including its captured date.</summary>
+    public async Task UpdateMemoryDetailsWithDateAsync(
+        string memoryId,
+        string title,
+        string? caption,
+        List<string> tags,
+        DateOnly? dateCaptured,
+        CancellationToken ct = default)
+    {
+        var url = $"{_settings.SupabaseUrl}/rest/v1/momo_memories?id=eq.{Uri.EscapeDataString(memoryId)}";
+        using var req = new HttpRequestMessage(new HttpMethod("PATCH"), url);
+        await AddAuthHeadersAsync(req, ct);
+        var payload = new
+        {
+            title,
+            caption,
+            tags,
+            date_captured = dateCaptured?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)
+        };
+        req.Content = new StringContent(JsonSerializer.Serialize(payload, Json.Options), Encoding.UTF8, "application/json");
+
+        using var resp = await _http.SendAsync(req, ct);
+        if (!resp.IsSuccessStatusCode)
+        {
+            var body = await resp.Content.ReadAsStringAsync(ct);
+            throw new InvalidOperationException($"Update guided Relive details failed: {body}");
+        }
+    }
+
     public async Task DeleteMemoryAsync(string memoryId, CancellationToken ct = default)
     {
         var url = $"{_settings.SupabaseUrl}/rest/v1/momo_memories?id=eq.{Uri.EscapeDataString(memoryId)}";

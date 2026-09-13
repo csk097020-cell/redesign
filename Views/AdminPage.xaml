@@ -10,9 +10,9 @@
 
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#050B1F" Offset="0" />
-            <GradientStop Color="#0D1635" Offset="0.55" />
-            <GradientStop Color="#110A2E" Offset="1" />
+            <GradientStop Color="#F4EBD4" Offset="0" />
+            <GradientStop Color="#E3DCC0" Offset="0.56" />
+            <GradientStop Color="#C8C8A5" Offset="1" />
         </LinearGradientBrush>
     </ContentPage.Background>
 
@@ -156,9 +156,9 @@
                                             Text="✏️"
                                             Command="{Binding Source={x:Reference AdminPageRef}, Path=BindingContext.StartEditTagCommand}"
                                             CommandParameter="{Binding .}"
-                                            BackgroundColor="#221E3264"
-                                            TextColor="White"
-                                            BorderColor="#553B82F6"
+                                            BackgroundColor="#FFFDF7"
+                                            TextColor="#303127"
+                                            BorderColor="#D8CFB6"
                                             BorderWidth="1"
                                             CornerRadius="14"
                                             HeightRequest="36" WidthRequest="44"
@@ -170,9 +170,9 @@
                                             Text="{Binding IsActive, StringFormat='Active: {0}'}"
                                             Command="{Binding Source={x:Reference AdminPageRef}, Path=BindingContext.ToggleActiveCommand}"
                                             CommandParameter="{Binding .}"
-                                            BackgroundColor="#221E3264"
+                                            BackgroundColor="#FFFDF7"
                                             TextColor="{StaticResource GlowCyan}"
-                                            BorderColor="#553B82F6"
+                                            BorderColor="#D8CFB6"
                                             BorderWidth="1"
                                             CornerRadius="14"
                                             HeightRequest="36"
@@ -195,10 +195,10 @@
                                 </Grid>
 
                                 <!-- Inline edit form — visible only for the tag being edited -->
-                                <Border BackgroundColor="#CC0D1B3E"
+                                <Border BackgroundColor="#F8F2E3"
                                         StrokeShape="RoundRectangle 14"
                                         StrokeThickness="1"
-                                        Stroke="#553B82F6"
+                                        Stroke="#D8CFB6"
                                         Padding="14,12">
                                     <Border.IsVisible>
                                         <MultiBinding Converter="{StaticResource StringEqualMultiConverter}">
@@ -273,7 +273,7 @@
                                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
                                         <Label Text="{Binding DisplayName}"
                                                FontAttributes="Bold" FontSize="14"
-                                               TextColor="White" VerticalOptions="Center" />
+                                               TextColor="{StaticResource Ink}" VerticalOptions="Center" />
                                         <Border Grid.Column="1"
                                                 BackgroundColor="#220077A8"
                                                 StrokeShape="RoundRectangle 8"
@@ -305,9 +305,9 @@
                                 <VerticalStackLayout Grid.Row="0" Grid.Column="2"
                                                      Spacing="6" VerticalOptions="Center">
                                     <Button Text="{Binding IsAdmin, Converter={StaticResource AdminLabelConverter}}"
-                                            BackgroundColor="#221E3264"
+                                            BackgroundColor="#FFFDF7"
                                             TextColor="{StaticResource GlowCyan}"
-                                            BorderColor="#553B82F6"
+                                            BorderColor="#D8CFB6"
                                             BorderWidth="1"
                                             CornerRadius="12"
                                             HeightRequest="32"

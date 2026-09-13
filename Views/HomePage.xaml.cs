@@ -5,7 +5,6 @@ namespace MomentaryMomentos.Views;
 public partial class HomePage : ContentPage
 {
     private readonly HomeViewModel _vm;
-    private CancellationTokenSource? _spinCts;
 
     public HomePage(HomeViewModel vm)
     {
@@ -17,8 +16,6 @@ public partial class HomePage : ContentPage
     {
         base.OnAppearing();
         _vm.RefreshCommand.Execute(null);
-        StartLogoSpin();
-
         // Update the offline indicator reactively while the page is open.
         Connectivity.Current.ConnectivityChanged += OnConnectivityChanged;
     }
@@ -26,9 +23,6 @@ public partial class HomePage : ContentPage
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        _spinCts?.Cancel();
-        _spinCts = null;
-
         Connectivity.Current.ConnectivityChanged -= OnConnectivityChanged;
     }
 
@@ -36,12 +30,12 @@ public partial class HomePage : ContentPage
         => MainThread.BeginInvokeOnMainThread(_vm.RefreshConnectionStatus);
 
     // ── Auto-fit app name ────────────────────────────────────────────────────
-    // The header title wants to be 25pt, but on narrow screens that overflows and
+    // The header title wants to be 16pt, but on narrow screens that overflows and
     // truncates ("Momentary Moment…"). Whenever the label's allotted width changes
     // (first layout, rotation, split-screen), re-measure the text at full size and
     // shrink the font only as much as that width requires.
 
-    private const double TitleBaseFontSize = 25;
+    private const double TitleBaseFontSize = 16;
     private double _lastTitleFitWidth = -1;
 
     private void OnTitleSizeChanged(object? sender, EventArgs e) => FitTitleToWidth();
@@ -57,24 +51,7 @@ public partial class HomePage : ContentPage
         TitleLabel.FontSize = TitleBaseFontSize;
         double needed = TitleLabel.Measure(double.PositiveInfinity, double.PositiveInfinity).Width;
         if (needed > available)
-            TitleLabel.FontSize = Math.Max(15, TitleBaseFontSize * (available / needed) * 0.97);
-    }
-
-    private void StartLogoSpin()
-    {
-        _spinCts?.Cancel();
-        _spinCts = new CancellationTokenSource();
-        var token = _spinCts.Token;
-
-        MainThread.BeginInvokeOnMainThread(async () =>
-        {
-            while (!token.IsCancellationRequested)
-            {
-                await LogoImage.RotateTo(360, 6000, Easing.Linear);
-                if (!token.IsCancellationRequested)
-                    LogoImage.Rotation = 0;
-            }
-        });
+            TitleLabel.FontSize = Math.Max(11, TitleBaseFontSize * (available / needed) * 0.97);
     }
 
     private void OnCaptureClicked(object sender, EventArgs e)
@@ -84,6 +61,16 @@ public partial class HomePage : ContentPage
         => Shell.Current.GoToAsync("//main/relive");
 
     private void OnUploadClicked(object sender, EventArgs e)
+        => Shell.Current.GoToAsync("//main/capture?intent=pick");
+
+    // The action rows are tappable across their full width, not just the icon badge.
+    private void OnCaptureRowTapped(object sender, TappedEventArgs e)
+        => Shell.Current.GoToAsync("//main/capture?intent=record");
+
+    private void OnReliveRowTapped(object sender, TappedEventArgs e)
+        => Shell.Current.GoToAsync("//main/relive");
+
+    private void OnUploadRowTapped(object sender, TappedEventArgs e)
         => Shell.Current.GoToAsync("//main/capture?intent=pick");
 
     private void OnManageTagsClicked(object sender, EventArgs e)

@@ -28,6 +28,13 @@ public partial class MemoryDetailPage : ContentPage
 
     private void OnBackClicked(object sender, EventArgs e)
     {
+        // Inside the guided Relive wizard, Back walks through the metadata steps first.
+        if (_vm.IsGuidedEditing && _vm.ReliveStep > 1)
+        {
+            _vm.RelivePreviousStepCommand.Execute(null);
+            return;
+        }
+
         if (_vm.IsSingleMemoryMode)
         {
             Shell.Current.GoToAsync("//main/home");

@@ -86,7 +86,7 @@
     <!-- iOS: no adaptive masking, so keep the original full-bleed icon unchanged. -->
     <MauiIcon Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'" Include="Resources\Images\appicon.png" Color="#050B1F" />
 
-    <MauiSplashScreen Include="Resources\Images\logo.png" Color="#050B1F" BaseSize="96,96" />
+    <MauiSplashScreen Include="Resources\Images\logo.png" Color="#F4EBD4" BaseSize="96,96" />
 
     <MauiImage Include="Resources\Images\*.svg" Exclude="Resources\Images\appicon.svg;Resources\Images\appiconfg.svg;Resources\Images\splash.svg" />
     <MauiImage Include="Resources\Images\*.png" Exclude="Resources\Images\appicon.png" />

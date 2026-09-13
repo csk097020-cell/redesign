@@ -5,521 +5,302 @@
              xmlns:models="clr-namespace:MomentaryMomentos.Models"
              x:Class="MomentaryMomentos.Views.MemoryDetailPage"
              x:DataType="vm:MemoryDetailViewModel"
-             Shell.NavBarIsVisible="False">
+             Shell.NavBarIsVisible="False"
+             Background="{StaticResource WarmPageGradient}">
 
-    <!-- Root: thumbnail as full-screen background -->
-    <Grid x:Name="RootGrid">
-        <Grid.GestureRecognizers>
-            <!-- Swipe left = next memory, swipe right = previous (#20) -->
-            <SwipeGestureRecognizer Direction="Left"  Command="{Binding NextCommand}" />
-            <SwipeGestureRecognizer Direction="Right" Command="{Binding PreviousCommand}" />
-        </Grid.GestureRecognizers>
+    <Grid RowDefinitions="Auto,*">
 
-        <!-- ── Dynamic tag-based gradient background (matches PWA MemoryPlayback) ── -->
-        <BoxView Background="{Binding TagGradientBrush}" />
+        <!-- Quiet top bar -->
+        <Grid Padding="16,14,16,8" ColumnDefinitions="52,*,52">
+            <Button Text="‹" BackgroundColor="Transparent" TextColor="{StaticResource Ink}"
+                    FontSize="32" Padding="0" Clicked="OnBackClicked" />
+            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="1">
+                <Image Source="logo.png" WidthRequest="28" HeightRequest="28" Aspect="AspectFit" />
+                <Label Text="RELIVE" FontSize="11" CharacterSpacing="2.5"
+                       TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+            <Button Grid.Column="2" Text="🎲" Style="{StaticResource RoundIconButton}"
+                    WidthRequest="44" HeightRequest="44" CornerRadius="22" FontSize="18"
+                    Command="{Binding FindAnotherCommand}"
+                    SemanticProperties.Description="Roll for another momento" />
+        </Grid>
 
-        <!-- ── Thumbnail fills full screen (shown in both preview and play states) ── -->
-        <Image Source="{Binding CurrentMemory.DisplayThumbnailSource}"
-               Aspect="AspectFill"
-               IsVisible="{Binding CurrentMemory.DisplayThumbnailSource,
-                           Converter={StaticResource StringNotEmptyConverter}}" />
+        <!-- ═══════════════════════════════════════════════════════════════
+             GUIDED RELIVE: title → date → tags → caption + save
+             Only Relive launches this mode; direct opens from Home use the detail view below.
+             ═══════════════════════════════════════════════════════════════ -->
+        <ScrollView Grid.Row="1" IsVisible="{Binding IsGuidedEditing}">
+            <VerticalStackLayout Padding="22,4,22,34" Spacing="16">
 
-        <!-- ── Dark scrim over thumbnail for readability ── -->
-        <BoxView BackgroundColor="#000000" Opacity="0.52"
-                 IsVisible="{Binding CurrentMemory.DisplayThumbnailSource,
-                             Converter={StaticResource StringNotEmptyConverter}}" />
+                <Grid ColumnDefinitions="*,Auto" Margin="4,0">
+                    <Label Text="TITLE   ·   DATE   ·   TAGS   ·   CAPTION"
+                           FontSize="9" CharacterSpacing="1.25"
+                           TextColor="{StaticResource TextMuted}" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="{Binding ReliveProgressText}"
+                           FontSize="11" FontAttributes="Bold" TextColor="{StaticResource OliveDark}" />
+                </Grid>
+                <ProgressBar Progress="{Binding ReliveStep, Converter={StaticResource ReliveStepProgressConverter}}"
+                             ProgressColor="{StaticResource Olive}" BackgroundColor="#D8D0B7" HeightRequest="4" />
 
-        <!-- ── Top scrim: keeps Back readable over media ── -->
-        <BoxView VerticalOptions="Start" HeightRequest="130">
-            <BoxView.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#CC000000" Offset="0" />
-                    <GradientStop Color="Transparent" Offset="1" />
-                </LinearGradientBrush>
-            </BoxView.Background>
-        </BoxView>
-
-        <!-- ── Subtle aero glow ring behind play button ── -->
-        <Ellipse WidthRequest="220" HeightRequest="220"
-                 HorizontalOptions="Center" VerticalOptions="Center"
-                 InputTransparent="True">
-            <Ellipse.Fill>
-                <RadialGradientBrush Center="0.5,0.5" Radius="0.5">
-                    <GradientStop Color="#4400B4D8" Offset="0" />
-                    <GradientStop Color="Transparent" Offset="1" />
-                </RadialGradientBrush>
-            </Ellipse.Fill>
-        </Ellipse>
-
-        <!-- ── All UI content ── -->
-        <Grid RowDefinitions="Auto,*,Auto"
-              Padding="0,0,0,0">
-
-            <!-- ── TOP BAR ── -->
-            <Grid Grid.Row="0"
-                  ColumnDefinitions="Auto,*,Auto"
-                  Padding="16,52,16,12">
-
-                <!-- Back -->
-                <Border BackgroundColor="#99000000"
-                        StrokeShape="RoundRectangle 20"
-                        StrokeThickness="1"
-                        Stroke="#8800B4D8"
-                        Padding="0">
-                    <Button Text="← Back"
-                            BackgroundColor="Transparent"
-                            TextColor="White"
-                            FontSize="14"
-                            HeightRequest="40"
-                            Padding="14,0"
-                            Clicked="OnBackClicked" />
+                <!-- Small Polaroid preview stays with the person throughout the walkthrough -->
+                <Border Style="{StaticResource Polaroid}" Margin="12,2" Padding="10,10,10,14">
+                    <VerticalStackLayout Spacing="6">
+                        <Grid HeightRequest="210">
+                            <Border BackgroundColor="#D8D3C0" StrokeThickness="0" StrokeShape="RoundRectangle 2">
+                                <Grid>
+                                    <Image Source="{Binding CurrentMemory.DisplayThumbnailSource}" Aspect="AspectFill"
+                                           IsVisible="{Binding CurrentMemory.DisplayThumbnailSource, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    <Button Text="▶" WidthRequest="54" HeightRequest="54" CornerRadius="27"
+                                            BackgroundColor="#DDFFFDF7" TextColor="{StaticResource OliveDark}"
+                                            HorizontalOptions="Center" VerticalOptions="Center"
+                                            Command="{Binding PlayCommand}" />
+                                </Grid>
+                            </Border>
+                        </Grid>
+                        <Label Text="{Binding CurrentMemory.Title}" FontSize="14" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" LineBreakMode="TailTruncation" MaxLines="1" />
+                        <Label Text="{Binding CoverDate}" FontSize="10" TextColor="{StaticResource TextMuted}" />
+                    </VerticalStackLayout>
                 </Border>
 
-                <BoxView Grid.Column="1" BackgroundColor="Transparent" />
+                <!-- Step 1: title -->
+                <VerticalStackLayout IsVisible="{Binding IsReliveTitleStep}" Spacing="12">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                        <Label Text="Set a Title" FontSize="24" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="Give this momento a name you'll recognize later."
+                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <Frame Style="{StaticResource GlassInput}" HeightRequest="58">
+                        <Entry Text="{Binding ReliveTitleInput}" Placeholder="Give this moment a title"
+                               MaxLength="80" ReturnType="Done" />
+                    </Frame>
+                    <Button Text="Next  →" Style="{StaticResource PrimaryBtn}"
+                            Command="{Binding ReliveNextStepCommand}" />
+                </VerticalStackLayout>
 
-                <!-- Skip (dice) -->
-                <Border Grid.Column="2"
-                        BackgroundColor="#99000000"
-                        StrokeShape="RoundRectangle 20"
-                        StrokeThickness="1"
-                        Stroke="#8800B4D8"
-                        Padding="0">
-                    <Button Text="🎲"
-                            BackgroundColor="Transparent"
-                            TextColor="White"
-                            FontSize="18"
-                            HeightRequest="40"
-                            WidthRequest="44"
-                            Padding="0"
-                            Command="{Binding FindAnotherCommand}" />
-                </Border>
-            </Grid>
+                <!-- Step 2: date -->
+                <VerticalStackLayout IsVisible="{Binding IsReliveDateStep}" Spacing="12">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                        <Label Text="Confirm the Date" FontSize="24" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="When did this moment happen?"
+                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <Frame Style="{StaticResource GlassInput}" HeightRequest="58">
+                        <DatePicker Date="{Binding ReliveDateInput}"
+                                    MaximumDate="{Binding MaxReliveDate}"
+                                    Format="MMMM d, yyyy" />
+                    </Frame>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Text="←  Back" Style="{StaticResource SecondaryBtn}"
+                                Command="{Binding RelivePreviousStepCommand}" />
+                        <Button Grid.Column="1" Text="Next  →" Style="{StaticResource PrimaryBtn}"
+                                Command="{Binding ReliveNextStepCommand}" />
+                    </Grid>
+                </VerticalStackLayout>
 
-            <!-- ── CENTER: Prev | Play | Next ── -->
-            <Grid Grid.Row="1"
-                  IsVisible="{Binding IsPreview, Converter={StaticResource InverseBoolConverter}}">
+                <!-- Step 3: tags -->
+                <VerticalStackLayout IsVisible="{Binding IsReliveTagsStep}" Spacing="12">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                        <Label Text="Add Tags" FontSize="24" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="Choose a few words to remember this moment by."
+                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
 
-                <!-- Prev arrow -->
-                <Border HorizontalOptions="Start"
-                        VerticalOptions="Center"
-                        Margin="14,0"
-                        BackgroundColor="#44000000"
-                        StrokeShape="RoundRectangle 28"
-                        StrokeThickness="1"
-                        Stroke="#3300B4D8"
-                        IsVisible="{Binding HasPrevious}"
-                        WidthRequest="52" HeightRequest="52">
-                    <Button Text="‹"
-                            BackgroundColor="Transparent"
-                            TextColor="White"
-                            FontSize="28"
-                            HeightRequest="52" WidthRequest="52"
-                            Padding="0"
-                            Command="{Binding PreviousCommand}" />
-                </Border>
-
-                <!-- Play button -->
-                <Border HorizontalOptions="Center" VerticalOptions="Center"
-                        StrokeShape="RoundRectangle 40"
-                        StrokeThickness="0"
-                        WidthRequest="80" HeightRequest="80">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#00B4D8" Offset="0" />
-                            <GradientStop Color="#7C3AED" Offset="1" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                    <Border.Shadow>
-                        <Shadow Brush="#AA00B4D8" Offset="0,6" Radius="20" Opacity="0.7" />
-                    </Border.Shadow>
-                    <Button Text="▶"
-                            BackgroundColor="Transparent"
-                            TextColor="White"
-                            HeightRequest="80" WidthRequest="80"
-                            FontSize="28"
-                            Padding="0"
-                            Command="{Binding PlayCommand}" />
-                </Border>
-
-                <!-- Next arrow -->
-                <Border HorizontalOptions="End"
-                        VerticalOptions="Center"
-                        Margin="14,0"
-                        BackgroundColor="#44000000"
-                        StrokeShape="RoundRectangle 28"
-                        StrokeThickness="1"
-                        Stroke="#3300B4D8"
-                        IsVisible="{Binding HasNext}"
-                        WidthRequest="52" HeightRequest="52">
-                    <Button Text="›"
-                            BackgroundColor="Transparent"
-                            TextColor="White"
-                            FontSize="28"
-                            HeightRequest="52" WidthRequest="52"
-                            Padding="0"
-                            Command="{Binding NextCommand}" />
-                </Border>
-
-                <!-- Loading indicator -->
-                <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                   IsVisible="{Binding IsBusy}"
-                                   Color="#00B4D8"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center" />
-
-            </Grid>
-
-            <!-- ── BOTTOM INFO + ACTIONS ── -->
-            <Grid Grid.Row="2" BackgroundColor="#DD000000">
-
-                <!-- Content on scrim -->
-                <VerticalStackLayout Padding="20,16,20,44" Spacing="10">
-
-                    <!-- Caption (optional). Title, tags, and days-ago now live only over the
-                         image (FIX 5) so they aren't duplicated here. -->
-                    <Label Text="{Binding CurrentMemory.Caption}"
-                           TextColor="#CCFFFFFF"
-                           FontSize="13"
-                           IsVisible="{Binding CurrentMemory.Caption,
-                                       Converter={StaticResource StringNotEmptyConverter}}" />
-
-                    <!-- Captured date — shown only when it differs from the upload date (FIX 5) -->
-                    <Label Text="{Binding CapturedDateDisplay}"
-                           TextColor="#AAFFFFFF"
-                           FontSize="12"
-                           IsVisible="{Binding HasCapturedDate}" />
-
-                    <!-- Action row -->
-                    <FlexLayout Direction="Row" JustifyContent="SpaceBetween" AlignItems="Center"
-                                Margin="0,4,0,0">
-
-                        <!-- Favorite -->
-                        <Border BackgroundColor="#44000000"
-                                StrokeShape="RoundRectangle 22"
-                                StrokeThickness="1"
-                                Stroke="#3300B4D8"
-                                Padding="0">
-                            <Button Text="{Binding IsCurrentFavorite,
-                                           Converter={StaticResource FavoriteIconConverter}}"
-                                    BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontSize="18"
-                                    HeightRequest="44" WidthRequest="44"
-                                    Padding="0"
-                                    Command="{Binding ToggleFavoriteCommand}" />
-                        </Border>
-
-                        <!-- Retag -->
-                        <Border StrokeShape="RoundRectangle 22"
-                                StrokeThickness="1"
-                                Padding="0">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#44162440" Offset="0" />
-                                    <GradientStop Color="#441B0D3C" Offset="1" />
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <Border.Triggers>
-                                <DataTrigger TargetType="Border"
-                                             Binding="{Binding IsRetagging}" Value="True">
-                                    <Setter Property="Stroke" Value="#00B4D8" />
-                                    <Setter Property="StrokeThickness" Value="1.5" />
-                                </DataTrigger>
-                                <DataTrigger TargetType="Border"
-                                             Binding="{Binding IsRetagging}" Value="False">
-                                    <Setter Property="Stroke" Value="#3300B4D8" />
-                                </DataTrigger>
-                            </Border.Triggers>
-                            <Button Text="🏷️ Retag"
-                                    BackgroundColor="Transparent"
-                                    TextColor="#00B4D8"
-                                    FontSize="13"
-                                    HeightRequest="44"
-                                    Padding="14,0"
-                                    Command="{Binding ToggleRetagCommand}" />
-                        </Border>
-
-                        <!-- See Less -->
-                        <Border BackgroundColor="#44000000"
-                                StrokeShape="RoundRectangle 22"
-                                StrokeThickness="1"
-                                Stroke="#33FF4D6A"
-                                Padding="0">
-                            <Button Text="👎 Less"
-                                    BackgroundColor="Transparent"
-                                    TextColor="#FF8080"
-                                    FontSize="13"
-                                    HeightRequest="44"
-                                    Padding="14,0"
-                                    Command="{Binding SeeLessCommand}" />
-                        </Border>
-
-                        <!-- Delete -->
-                        <Border BackgroundColor="#44000000"
-                                StrokeShape="RoundRectangle 22"
-                                StrokeThickness="1"
-                                Stroke="#33FF4D6A"
-                                Padding="0">
-                            <Button Text="🗑"
-                                    BackgroundColor="Transparent"
-                                    TextColor="#FF4D6A"
-                                    FontSize="18"
-                                    HeightRequest="44" WidthRequest="44"
-                                    Padding="0"
-                                    Command="{Binding DeleteCommand}" />
-                        </Border>
-
-                        <!-- Share / Download (matches PWA download button) -->
-                        <Border BackgroundColor="#44000000"
-                                StrokeShape="RoundRectangle 22"
-                                StrokeThickness="1"
-                                Stroke="#3300E5FF"
-                                Padding="0">
-                            <Button Text="⬇️"
-                                    BackgroundColor="Transparent"
-                                    TextColor="#00E5FF"
-                                    FontSize="18"
-                                    HeightRequest="44" WidthRequest="44"
-                                    Padding="0"
-                                    Command="{Binding ShareVideoCommand}" />
-                        </Border>
-
-                    </FlexLayout>
-
-                    <!-- ── RETAG PANEL (#3) ── -->
-                    <Border IsVisible="{Binding IsRetagging}"
-                            BackgroundColor="#0D1B3E"
-                            StrokeShape="RoundRectangle 18"
-                            StrokeThickness="1"
-                            Stroke="#553B82F6"
-                            Padding="16,14">
-                        <Border.Shadow>
-                            <Shadow Brush="#8800B4D8" Offset="0,-4" Radius="20" Opacity="0.4" />
-                        </Border.Shadow>
-
-                        <VerticalStackLayout Spacing="12">
-
-                            <Label Text="Edit momento"
-                                   TextColor="#00B4D8"
-                                   FontSize="13"
-                                   FontAttributes="Bold" />
-
-                            <!-- Title + Caption editing (#3) — a deliberate edit with its own
-                                 Save/Cancel below; location editing stays out (not built yet). -->
-                            <Label Text="Title" Style="{StaticResource Caption}" />
-                            <Frame Style="{StaticResource GlassInput}">
-                                <Entry Text="{Binding RetagTitleInput}" Placeholder="Give this moment a name"
-                                       MaxLength="80" BackgroundColor="Transparent" />
-                            </Frame>
-
-                            <Label Text="Caption" Style="{StaticResource Caption}" />
-                            <Frame Style="{StaticResource GlassInput}">
-                                <Editor Text="{Binding RetagCaptionInput}" Placeholder="Add a note about this moment…"
-                                        AutoSize="TextChanges" MaxLength="280"
-                                        VerticalTextAlignment="Center" TextColor="{StaticResource TextPrimary}"
-                                        HeightRequest="80" BackgroundColor="Transparent" />
-                            </Frame>
-
-                            <Label Text="Tags" Style="{StaticResource Caption}" Margin="0,4,0,0" />
-
-                            <!-- Tag toggle buttons — scrollable so all tags stay reachable when
-                                 there are more than fit (FIX 3). -->
-                            <ScrollView MaximumHeightRequest="220">
-                            <FlexLayout BindableLayout.ItemsSource="{Binding AllTags}"
-                                        Wrap="Wrap" Direction="Row">
+                    <Border BackgroundColor="#66FFFDF7" Stroke="#D8CFB6" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 18" Padding="12">
+                        <ScrollView MaximumHeightRequest="250">
+                            <FlexLayout BindableLayout.ItemsSource="{Binding AllTags}" Wrap="Wrap" Direction="Row">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="vm:TagSelection">
-                                        <!-- Shrink=0 keeps the pill at its full text width (FIX 4) -->
-                                        <Border FlexLayout.Shrink="0"
-                                                Margin="0,0,6,6"
-                                                StrokeShape="RoundRectangle 18"
-                                                StrokeThickness="1"
-                                                Padding="0">
-                                            <!-- DataTrigger toggles selected/unselected look -->
+                                        <Border FlexLayout.Shrink="0" Margin="0,0,7,7"
+                                                BackgroundColor="{StaticResource Cream}"
+                                                Stroke="#CFC7AE" StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 18" Padding="0">
                                             <Border.Triggers>
-                                                <DataTrigger TargetType="Border"
-                                                             Binding="{Binding IsSelected}" Value="True">
-                                                    <Setter Property="Stroke" Value="#00B4D8" />
-                                                    <Setter Property="BackgroundColor" Value="#8800B4D8" />
-                                                </DataTrigger>
-                                                <DataTrigger TargetType="Border"
-                                                             Binding="{Binding IsSelected}" Value="False">
-                                                    <Setter Property="Stroke" Value="#3300B4D8" />
-                                                    <Setter Property="BackgroundColor" Value="#33162440" />
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Stroke" Value="{StaticResource Accent}" />
+                                                    <Setter Property="StrokeThickness" Value="2" />
+                                                    <Setter Property="BackgroundColor" Value="#FFF9EE" />
                                                 </DataTrigger>
                                             </Border.Triggers>
                                             <Button Text="{Binding Tag.DisplayLabel}"
                                                     BackgroundColor="Transparent"
-                                                    TextColor="White"
-                                                    FontSize="13"
-                                                    HeightRequest="36"
-                                                    Padding="14,0"
-                                                    Clicked="OnRetagTagClicked"
-                                                    CommandParameter="{Binding .}" />
+                                                    TextColor="{StaticResource Ink}"
+                                                    FontSize="12" HeightRequest="38" Padding="13,0"
+                                                    Clicked="OnRetagTagClicked" CommandParameter="{Binding .}" />
                                         </Border>
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
                             </FlexLayout>
-                            </ScrollView>
-
-                            <!-- Create a new custom tag -->
-                            <Button Text="＋ Create new tag"
-                                    Style="{StaticResource SecondaryBtn}"
-                                    FontSize="13"
-                                    HeightRequest="40"
-                                    Command="{Binding CreateCustomTagCommand}" />
-
-                            <!-- Save / Cancel -->
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
-                                <Button Grid.Column="0"
-                                        Text="Save"
-                                        Style="{StaticResource PrimaryBtn}"
-                                        HeightRequest="44"
-                                        Command="{Binding SaveRetagCommand}" />
-                                <Button Grid.Column="1"
-                                        Text="Cancel"
-                                        Style="{StaticResource SecondaryBtn}"
-                                        HeightRequest="44"
-                                        Command="{Binding ToggleRetagCommand}" />
-                            </Grid>
-
-                        </VerticalStackLayout>
+                        </ScrollView>
                     </Border>
 
+                    <Button Text="＋ Add your own tag" Style="{StaticResource SecondaryBtn}"
+                            Command="{Binding CreateCustomTagCommand}" HeightRequest="44" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Text="←  Back" Style="{StaticResource SecondaryBtn}"
+                                Command="{Binding RelivePreviousStepCommand}" />
+                        <Button Grid.Column="1" Text="Next  →" Style="{StaticResource PrimaryBtn}"
+                                Command="{Binding ReliveNextStepCommand}" />
+                    </Grid>
                 </VerticalStackLayout>
-            </Grid>
 
-        </Grid>
+                <!-- Step 4: caption + save -->
+                <VerticalStackLayout IsVisible="{Binding IsReliveCaptionStep}" Spacing="12">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                        <Label Text="Add a Caption" FontSize="24" FontAttributes="Bold"
+                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
+                        <Label Text="Tell the story behind this moment. Optional, but lovely."
+                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <Frame Style="{StaticResource GlassInput}" HeightRequest="126" Padding="14,8">
+                        <Editor Text="{Binding ReliveCaptionInput}"
+                                Placeholder="What do you want future-you to remember?"
+                                MaxLength="280" AutoSize="TextChanges" />
+                    </Frame>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Text="←  Back" Style="{StaticResource SecondaryBtn}"
+                                Command="{Binding RelivePreviousStepCommand}" />
+                        <Button Grid.Column="1" Text="Save Momento  ♡" Style="{StaticResource PrimaryBtn}"
+                                Command="{Binding SaveGuidedReliveCommand}" />
+                    </Grid>
+                    <Label Text="Your momento stays private unless you choose to share it."
+                           Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
 
-        <!-- ── Preview overlay: "You're about to relive" — must be LAST child so it renders
-             above the UI content Grid and its taps are not absorbed by the Grid below.
-             Hidden while the retag panel is open so it doesn't draw over the panel.
+            </VerticalStackLayout>
+        </ScrollView>
 
-             This wrapper Grid defaults to Fill/Fill (unlike the VerticalStackLayout it wraps,
-             which is Center/Center and only as big as its content), so it spans the whole
-             RootGrid — including the top bar (Back/dice) and the bottom action row, which sit
-             BELOW it in z-order. iOS hit-tests strictly: an invisible full-screen Grid with no
-             InputTransparent still swallows every tap in its bounds, even where it has no
-             visible content, which blocked Back/dice/favorite/Retag/Less/delete/share on iOS
-             (Android's hit-testing let taps fall through regardless, masking the bug there).
-             InputTransparent lets taps in the Grid's own empty area pass through to whatever
-             is beneath; CascadeInputTransparent="False" stops that from also disabling the
-             Play button inside the VerticalStackLayout below. ── -->
-        <Grid IsVisible="{Binding IsPreviewVisible}"
-              InputTransparent="True"
-              CascadeInputTransparent="False">
+        <!-- ═══════════════════════════════════════════════════════════════
+             FINAL / NORMAL DETAIL: cream Polaroid + icon activity bar
+             ═══════════════════════════════════════════════════════════════ -->
+        <ScrollView Grid.Row="1" IsVisible="{Binding IsDetailViewVisible}">
+            <VerticalStackLayout Padding="22,4,22,34" Spacing="15">
 
-        <VerticalStackLayout HorizontalOptions="Center"
-                             VerticalOptions="Center"
-                             Spacing="12"
-                             Padding="32,0">
-            <!-- Calendar date the momento was captured (#7) — pairs with the
-                 relative "5 weeks ago" counter further down. -->
-            <Label Text="{Binding CoverDate}"
-                   TextColor="#BBFFFFFF"
-                   FontSize="14"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"
-                   IsVisible="{Binding CoverDate,
-                               Converter={StaticResource StringNotEmptyConverter}}" />
-            <Label Text="You're about to relive:"
-                   TextColor="#DDFFFFFF"
-                   FontSize="16"
-                   FontAttributes="Italic"
-                   HorizontalOptions="Center" />
+                <Border Style="{StaticResource Polaroid}" Margin="8,2">
+                    <VerticalStackLayout Spacing="9">
+                        <Grid HeightRequest="360">
+                            <Border BackgroundColor="#D8D3C0" StrokeThickness="0" StrokeShape="RoundRectangle 2">
+                                <Grid>
+                                    <Image Source="{Binding CurrentMemory.DisplayThumbnailSource}" Aspect="AspectFill"
+                                           IsVisible="{Binding CurrentMemory.DisplayThumbnailSource, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    <Button Text="▶" WidthRequest="62" HeightRequest="62" CornerRadius="31"
+                                            BackgroundColor="#DDFFFDF7" TextColor="{StaticResource OliveDark}"
+                                            FontSize="21" HorizontalOptions="Center" VerticalOptions="Center"
+                                            Command="{Binding PlayCommand}" />
+                                </Grid>
+                            </Border>
+                        </Grid>
 
-            <!-- Title (FIX 5 — moved up top over the image) -->
-            <Label Text="{Binding CurrentMemory.Title}"
-                   TextColor="White"
-                   FontSize="22"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"
-                   HorizontalTextAlignment="Center" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="{Binding CurrentMemory.Title}" FontSize="21" FontAttributes="Bold"
+                                       TextColor="{StaticResource Ink}" />
+                                <Label Text="{Binding CoverDate}" FontSize="11" TextColor="{StaticResource TextMuted}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1"
+                                   Text="{Binding IsCurrentFavorite, Converter={StaticResource FavoriteIconConverter}}"
+                                   FontSize="25" TextColor="{StaticResource Accent}" VerticalOptions="Center" />
+                        </Grid>
 
-            <FlexLayout BindableLayout.ItemsSource="{Binding CurrentDisplayTags}"
-                        Wrap="Wrap" Direction="Row" JustifyContent="Center">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="models:TagInfo">
-                        <!-- Shrink=0 keeps the pill at its full text width (FIX 4) -->
-                        <Border FlexLayout.Shrink="0"
-                                BackgroundColor="{Binding Color}"
-                                StrokeShape="RoundRectangle 14"
-                                StrokeThickness="0"
-                                Padding="12,5" Margin="4,3">
-                            <Label Text="{Binding DisplayLabel}" TextColor="White"
-                                   FontSize="13" FontAttributes="Bold" />
-                        </Border>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </FlexLayout>
-            <Label Text="{Binding RelativeDate}"
-                   TextColor="#77FFFFFF" FontSize="12"
-                   HorizontalOptions="Center"
-                   IsVisible="{Binding RelativeDate,
-                               Converter={StaticResource StringNotEmptyConverter}}" />
-            <Button Text="▶ Play"
-                    Style="{StaticResource PrimaryBtn}"
-                    HeightRequest="48"
-                    Padding="24,0"
-                    Margin="0,10,0,0"
-                    Command="{Binding PlayCommand}" />
+                        <FlexLayout BindableLayout.ItemsSource="{Binding CurrentDisplayTags}" Wrap="Wrap" Direction="Row">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:TagInfo">
+                                    <Border FlexLayout.Shrink="0" BackgroundColor="{Binding Color}"
+                                            StrokeThickness="0" StrokeShape="RoundRectangle 12"
+                                            Padding="8,3" Margin="0,0,5,4">
+                                        <Label Text="{Binding DisplayLabel}" TextColor="White" FontSize="10" FontAttributes="Bold" />
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
 
-            <!-- Swipe strip (#3) — sits directly under the Play button, where swiping
-                 proved most reliable in testing. Swiping near the screen edges fights
-                 the iOS system back-swipe, so the arrows and the swipe surface live
-                 here instead. The strip has its own recognizers (a swipe that starts
-                 on a non-transparent child never reaches RootGrid's), and the arrows
-                 are tappable as a fallback. Kept inside this VerticalStackLayout so
-                 it can never overlap the top bar or the bottom action row. -->
-            <Grid ColumnDefinitions="*,Auto,*"
-                  WidthRequest="300"
-                  HeightRequest="56"
-                  Margin="0,4,0,0"
-                  BackgroundColor="Transparent">
-                <Grid.GestureRecognizers>
-                    <SwipeGestureRecognizer Direction="Left"  Swiped="OnSwipedLeft" />
-                    <SwipeGestureRecognizer Direction="Right" Swiped="OnSwipedRight" />
-                </Grid.GestureRecognizers>
+                        <Label Text="{Binding CurrentMemory.Caption}"
+                               Style="{StaticResource Body}" FontAttributes="Italic"
+                               IsVisible="{Binding CurrentMemory.Caption, Converter={StaticResource StringNotEmptyConverter}}" />
+                    </VerticalStackLayout>
+                </Border>
 
-                <Label Text="‹‹"
-                       TextColor="#88FFFFFF"
-                       FontSize="30"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Start"
-                       VerticalOptions="Center"
-                       Padding="18,8"
-                       IsVisible="{Binding HasPrevious}">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding PreviousCommand}" />
-                    </Label.GestureRecognizers>
-                </Label>
+                <!-- Activity bar: favorite, retag, see-less, delete, share -->
+                <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="9" Margin="4,0">
+                    <Button Text="♡" Style="{StaticResource RoundIconButton}"
+                            HorizontalOptions="Center" Command="{Binding ToggleFavoriteCommand}"
+                            SemanticProperties.Description="Favorite momento" />
+                    <Button Grid.Column="1" Text="◇" Style="{StaticResource RoundIconButton}"
+                            HorizontalOptions="Center" Command="{Binding ToggleRetagCommand}"
+                            SemanticProperties.Description="Edit title caption and tags" />
+                    <Button Grid.Column="2" Text="◉̸" Style="{StaticResource RoundIconButton}"
+                            HorizontalOptions="Center" Command="{Binding SeeLessCommand}"
+                            SemanticProperties.Description="See this momento less often" />
+                    <Button Grid.Column="3" Text="⌫" Style="{StaticResource RoundIconButton}"
+                            HorizontalOptions="Center" TextColor="{StaticResource Danger}"
+                            Command="{Binding DeleteCommand}" SemanticProperties.Description="Delete momento" />
+                    <Button Grid.Column="4" Text="↗" Style="{StaticResource RoundIconButton}"
+                            HorizontalOptions="Center" Command="{Binding ShareVideoCommand}"
+                            SemanticProperties.Description="Share or save momento" />
+                </Grid>
 
-                <Label Grid.Column="1"
-                       Text="swipe"
-                       TextColor="#55FFFFFF"
-                       FontSize="11"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"
-                       InputTransparent="True" />
+                <Grid ColumnDefinitions="Auto,*,Auto" Margin="8,1">
+                    <Button Text="‹" Style="{StaticResource GhostBtn}" FontSize="25"
+                            IsVisible="{Binding HasPrevious}" Command="{Binding PreviousCommand}" />
+                    <Label Grid.Column="1" Text="{Binding PositionLabel}" Style="{StaticResource Caption}"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                    <Button Grid.Column="2" Text="›" Style="{StaticResource GhostBtn}" FontSize="25"
+                            IsVisible="{Binding HasNext}" Command="{Binding NextCommand}" />
+                </Grid>
 
-                <Label Grid.Column="2"
-                       Text="››"
-                       TextColor="#88FFFFFF"
-                       FontSize="30"
-                       FontAttributes="Bold"
-                       HorizontalOptions="End"
-                       VerticalOptions="Center"
-                       Padding="18,8"
-                       IsVisible="{Binding HasNext}">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding NextCommand}" />
-                    </Label.GestureRecognizers>
-                </Label>
-            </Grid>
-        </VerticalStackLayout>
+                <!-- Light edit sheet retained for direct/manual edits -->
+                <Border IsVisible="{Binding IsRetagging}"
+                        BackgroundColor="{StaticResource CreamSoft}"
+                        Stroke="#D8CFB6" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Edit Momento" FontSize="18" FontAttributes="Bold" />
+                        <Label Text="Title" Style="{StaticResource Caption}" />
+                        <Frame Style="{StaticResource GlassInput}">
+                            <Entry Text="{Binding RetagTitleInput}" Placeholder="Title" MaxLength="80" />
+                        </Frame>
+                        <Label Text="Caption" Style="{StaticResource Caption}" />
+                        <Frame Style="{StaticResource GlassInput}" HeightRequest="100" Padding="12,6">
+                            <Editor Text="{Binding RetagCaptionInput}" Placeholder="Caption" MaxLength="280" />
+                        </Frame>
+                        <Label Text="Tags" Style="{StaticResource Caption}" />
+                        <ScrollView MaximumHeightRequest="180">
+                            <FlexLayout BindableLayout.ItemsSource="{Binding AllTags}" Wrap="Wrap" Direction="Row">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TagSelection">
+                                        <Border FlexLayout.Shrink="0" Margin="0,0,6,6"
+                                                BackgroundColor="{StaticResource Cream}"
+                                                Stroke="#CFC7AE" StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 18" Padding="0">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Stroke" Value="{StaticResource Accent}" />
+                                                    <Setter Property="StrokeThickness" Value="2" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Button Text="{Binding Tag.DisplayLabel}" BackgroundColor="Transparent"
+                                                    TextColor="{StaticResource Ink}" FontSize="12" HeightRequest="38" Padding="13,0"
+                                                    Clicked="OnRetagTagClicked" CommandParameter="{Binding .}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+                        </ScrollView>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Text="Save" Style="{StaticResource PrimaryBtn}" Command="{Binding SaveRetagCommand}" />
+                            <Button Grid.Column="1" Text="Cancel" Style="{StaticResource SecondaryBtn}" Command="{Binding ToggleRetagCommand}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
 
-        </Grid>
-
+                <Label Text="Collect moments, not things."
+                       FontSize="14" FontAttributes="Italic" TextColor="{StaticResource OliveDark}"
+                       HorizontalOptions="Center" Margin="0,5" />
+            </VerticalStackLayout>
+        </ScrollView>
     </Grid>
-
 </ContentPage>

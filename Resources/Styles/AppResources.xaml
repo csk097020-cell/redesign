@@ -10,5 +10,8 @@
     <conv:BoolToFavoriteIconConverter x:Key="FavoriteIconConverter" />
     <conv:AdminLabelConverter x:Key="AdminLabelConverter" />
     <conv:StringEqualMultiConverter x:Key="StringEqualMultiConverter" />
+    <conv:ReliveStepProgressConverter x:Key="ReliveStepProgressConverter" />
+    <conv:DateAccentColorConverter x:Key="DateAccentColorConverter" />
+    <conv:IdToTiltConverter x:Key="IdToTiltConverter" />
 
 </ResourceDictionary>

@@ -7,7 +7,6 @@ namespace MomentaryMomentos.Views;
 public partial class RelivePage : ContentPage
 {
     private readonly ReliveViewModel _vm;
-    private bool _suppressNextAutoPlay;
 
     public RelivePage(ReliveViewModel vm)
     {
@@ -21,30 +20,34 @@ public partial class RelivePage : ContentPage
 
         try
         {
-            _vm.IsChoosingMemory = true;
-
+            // Relive now waits for the person to roll the dice. The old implementation
+            // immediately chose a memory on tab entry, so the dice was never actually part
+            // of the experience.
+            _vm.IsChoosingMemory = false;
             if (_vm.RefreshCommand is IAsyncRelayCommand asyncRefresh)
                 await asyncRefresh.ExecuteAsync(null);
             else
                 _vm.RefreshCommand.Execute(null);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"RelivePage.OnAppearing refresh failed: {ex}");
+        }
+    }
 
-            if (_suppressNextAutoPlay)
-            {
-                _suppressNextAutoPlay = false;
-                await Shell.Current.GoToAsync("//main/home");
-                return;
-            }
-
-            _suppressNextAutoPlay = true;
+    private async void OnDiceClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            _vm.IsChoosingMemory = true;
             if (_vm.SurpriseMeCommand is IAsyncRelayCommand asyncSurprise)
                 await asyncSurprise.ExecuteAsync(null);
             else
                 _vm.SurpriseMeCommand.Execute(null);
         }
-        catch (Exception ex)
+        finally
         {
-            System.Diagnostics.Debug.WriteLine($"RelivePage.OnAppearing refresh failed: {ex}");
-            await Shell.Current.GoToAsync("//main/home");
+            _vm.IsChoosingMemory = false;
         }
     }
 
@@ -57,21 +60,12 @@ public partial class RelivePage : ContentPage
     private void OnCardTapped(object sender, TappedEventArgs e)
     {
         if (e.Parameter is Memory memory)
-        {
-            _suppressNextAutoPlay = true;
             _vm.PlayCommand.Execute(memory);
-        }
     }
 
     private void OnToggleFavoriteTapped(object sender, TappedEventArgs e)
     {
         if (e.Parameter is Memory memory)
             _vm.ToggleFavoriteCommand.Execute(memory);
-    }
-
-    private void OnDeleteClicked(object sender, EventArgs e)
-    {
-        if (sender is Button { CommandParameter: Memory memory })
-            _vm.DeleteCommand.Execute(memory);
     }
 }

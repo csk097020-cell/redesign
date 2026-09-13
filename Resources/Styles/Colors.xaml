@@ -2,70 +2,77 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- ═══════════════════════════════════════════════════
-         AERO GLASS THEME — Dark Depth + Electric Accents
-         ═══════════════════════════════════════════════════ -->
+    <!-- Momentary Momentos — warm scrapbook / keepsake palette -->
+    <Color x:Key="Primary">#8A6DC7</Color>
+    <Color x:Key="PrimaryDark">#6652A0</Color>
+    <Color x:Key="PrimaryLight">#B7A4E5</Color>
+    <Color x:Key="Accent">#D84C9A</Color>
+    <Color x:Key="AccentLight">#F2B6D6</Color>
 
-    <!-- Core Aero Glow Colors -->
-    <Color x:Key="Primary">#00B4D8</Color>           <!-- Electric Cyan -->
-    <Color x:Key="PrimaryDark">#0077A8</Color>        <!-- Deep Cyan -->
-    <Color x:Key="PrimaryLight">#48CAE4</Color>       <!-- Soft Cyan -->
-    <Color x:Key="Accent">#8B5CF6</Color>             <!-- Aero Violet -->
-    <Color x:Key="AccentLight">#C4B5FD</Color>        <!-- Soft Violet -->
-
-    <!-- Aero Dark Depth Palette -->
-    <Color x:Key="Mist50">#050B1F</Color>             <!-- Deepest space navy -->
-    <Color x:Key="Mist100">#0D1635</Color>            <!-- Dark nav/card bg -->
-    <Color x:Key="Mist200">#1E3264</Color>            <!-- Glass border / dividers -->
-    <Color x:Key="Mist600">#4A6285</Color>            <!-- Muted text -->
+    <!-- Warm neutrals -->
+    <Color x:Key="Mist50">#FBF7EA</Color>
+    <Color x:Key="Mist100">#F4EEDC</Color>
+    <Color x:Key="Mist200">#D9D1B8</Color>
+    <Color x:Key="Mist600">#74705E</Color>
 
     <!-- Semantic -->
-    <Color x:Key="Success">#00E5A0</Color>            <!-- Neon teal-green -->
-    <Color x:Key="Warning">#F59E0B</Color>
-    <Color x:Key="Danger">#FF4D6A</Color>             <!-- Hot pink-red -->
-    <Color x:Key="Info">#00B4D8</Color>
+    <Color x:Key="Success">#788760</Color>
+    <Color x:Key="Warning">#B78A45</Color>
+    <Color x:Key="Danger">#BC5C56</Color>
+    <Color x:Key="Info">#4CB7CF</Color>
 
     <!-- Text -->
-    <Color x:Key="TextPrimary">#E8F4FD</Color>        <!-- Bright white-blue -->
-    <Color x:Key="TextSecondary">#94B4D8</Color>      <!-- Muted blue-grey -->
-    <Color x:Key="TextMuted">#4A6285</Color>          <!-- Dim slate-blue -->
-    <Color x:Key="TextOnDark">White</Color>
+    <Color x:Key="TextPrimary">#303127</Color>
+    <Color x:Key="TextSecondary">#5F6150</Color>
+    <Color x:Key="TextMuted">#85816E</Color>
+    <Color x:Key="TextOnDark">#FFFDF7</Color>
 
-    <!-- Surfaces & Backgrounds -->
-    <Color x:Key="Surface">#CC0D1B3E</Color>          <!-- Glass dark (80% opaque) -->
-    <Color x:Key="SurfaceRaised">#CC1A2744</Color>    <!-- Raised glass panel -->
-    <Color x:Key="PageBackground">#050B1F</Color>     <!-- Space navy -->
+    <!-- Surfaces -->
+    <Color x:Key="Surface">#F8F2E3</Color>
+    <Color x:Key="SurfaceRaised">#FFFDF7</Color>
+    <Color x:Key="PageBackground">#E9E2CA</Color>
+    <Color x:Key="Cream">#FFFDF7</Color>
+    <Color x:Key="CreamSoft">#F6F0DF</Color>
+    <Color x:Key="Olive">#77785C</Color>
+    <Color x:Key="OliveDark">#5D6049</Color>
+    <Color x:Key="OliveSoft">#C9C9A7</Color>
+    <Color x:Key="Tan">#D7CCAC</Color>
+    <Color x:Key="Ink">#303127</Color>
 
-    <!-- Glass-specific -->
-    <Color x:Key="GlassSurface">#CC0D1B3E</Color>    <!-- Card glass bg -->
-    <Color x:Key="GlassBorder">#553B82F6</Color>      <!-- Glowing blue rim -->
-    <Color x:Key="GlassBorderBright">#9960A5FA</Color><!-- Bright glass rim -->
-    <Color x:Key="GlassInput">#33162440</Color>       <!-- Input field tint -->
+    <!-- Compatibility aliases: existing pages still reference the old glass keys -->
+    <Color x:Key="GlassSurface">#F8F2E3</Color>
+    <Color x:Key="GlassBorder">#D9D1B8</Color>
+    <Color x:Key="GlassBorderBright">#B9AE90</Color>
+    <Color x:Key="GlassInput">#FFFDF7</Color>
 
-    <!-- Glow palette (for inline use) -->
-    <Color x:Key="GlowCyan">#00B4D8</Color>
-    <Color x:Key="GlowViolet">#8B5CF6</Color>
-    <Color x:Key="GlowPink">#EC4899</Color>
-    <Color x:Key="GlowGreen">#00E5A0</Color>
+    <!-- Brand accents retained from the logo / earlier app -->
+    <Color x:Key="GlowCyan">#49B9D3</Color>
+    <Color x:Key="GlowViolet">#8B63C9</Color>
+    <Color x:Key="GlowPink">#D84C9A</Color>
+    <Color x:Key="GlowGreen">#788760</Color>
 
-    <!-- Gradient brushes -->
-    <LinearGradientBrush x:Key="AeroPrimaryGradient" StartPoint="0,0" EndPoint="1,0">
-        <GradientStop Color="#00B4D8" Offset="0" />
-        <GradientStop Color="#7C3AED" Offset="1" />
+    <LinearGradientBrush x:Key="WarmPageGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#F4EBD4" Offset="0" />
+        <GradientStop Color="#E3DCC0" Offset="0.56" />
+        <GradientStop Color="#C8C8A5" Offset="1" />
     </LinearGradientBrush>
 
     <LinearGradientBrush x:Key="AeroPageGradient" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Color="#050B1F" Offset="0" />
-        <GradientStop Color="#0D1635" Offset="0.5" />
-        <GradientStop Color="#110A2E" Offset="1" />
+        <GradientStop Color="#F4EBD4" Offset="0" />
+        <GradientStop Color="#E3DCC0" Offset="0.56" />
+        <GradientStop Color="#C8C8A5" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="AeroPrimaryGradient" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#D84C9A" Offset="0" />
+        <GradientStop Color="#8A6DC7" Offset="1" />
     </LinearGradientBrush>
 
     <LinearGradientBrush x:Key="AeroAccentGradient" StartPoint="0,0" EndPoint="1,0">
-        <GradientStop Color="#EC4899" Offset="0" />
-        <GradientStop Color="#8B5CF6" Offset="1" />
+        <GradientStop Color="#D84C9A" Offset="0" />
+        <GradientStop Color="#8A6DC7" Offset="1" />
     </LinearGradientBrush>
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}" />
     <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}" />
-
 </ResourceDictionary>

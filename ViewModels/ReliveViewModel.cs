@@ -174,7 +174,8 @@ public partial class ReliveViewModel : BaseViewModel
             var userId = _supabase.Session?.UserId ?? "";
             await Shell.Current.GoToAsync(
                 $"memorydetail?memoryId={Uri.EscapeDataString(memory.Id)}" +
-                $"&userId={Uri.EscapeDataString(userId)}");
+                $"&userId={Uri.EscapeDataString(userId)}" +
+                $"&guided=true");
         }
         catch (Exception ex)
         {

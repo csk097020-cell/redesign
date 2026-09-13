@@ -36,6 +36,7 @@ public partial class MemoryDetailViewModel : BaseViewModel, IQueryAttributable
     private Dictionary<string, int>  _memoryWeights = new();
     private int                      _currentIndex;
     private bool                     _singleMemoryMode;
+    private bool                     _guidedReliveMode;
 
     // FIX 1 — post-playback return. Captured immediately before playback so we can re-select
     // the exact memory that played on return (by ID, never by list position or a re-fetch).
@@ -45,6 +46,33 @@ public partial class MemoryDetailViewModel : BaseViewModel, IQueryAttributable
     private bool                     _hasLoaded;
 
     public bool IsSingleMemoryMode => _singleMemoryMode;
+    public bool IsGuidedReliveMode => _guidedReliveMode;
+
+    // Guided Relive turns a random resurfacing into a short, intentional metadata walk-through:
+    // title → date → tags → caption → save. Direct opens from Home still use the normal detail view.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDetailViewVisible))]
+    private bool isGuidedEditing;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsReliveTitleStep))]
+    [NotifyPropertyChangedFor(nameof(IsReliveDateStep))]
+    [NotifyPropertyChangedFor(nameof(IsReliveTagsStep))]
+    [NotifyPropertyChangedFor(nameof(IsReliveCaptionStep))]
+    [NotifyPropertyChangedFor(nameof(ReliveProgressText))]
+    private int reliveStep = 1;
+
+    [ObservableProperty] private string? reliveTitleInput;
+    [ObservableProperty] private string? reliveCaptionInput;
+    [ObservableProperty] private DateTime reliveDateInput = DateTime.Today;
+
+    public DateTime MaxReliveDate => DateTime.Today;
+    public bool IsDetailViewVisible => !IsGuidedEditing;
+    public bool IsReliveTitleStep => ReliveStep == 1;
+    public bool IsReliveDateStep => ReliveStep == 2;
+    public bool IsReliveTagsStep => ReliveStep == 3;
+    public bool IsReliveCaptionStep => ReliveStep == 4;
+    public string ReliveProgressText => $"{ReliveStep} / 4";
 
     // ── Current memory state ─────────────────────────────────────────────────
     [ObservableProperty] private Memory? currentMemory;
@@ -130,6 +158,11 @@ public partial class MemoryDetailViewModel : BaseViewModel, IQueryAttributable
         else
             _singleMemoryMode = false;
 
+        if (query.TryGetValue("guided", out var guided))
+            _guidedReliveMode = bool.TryParse(Uri.UnescapeDataString(guided.ToString()!), out var parsedGuided) && parsedGuided;
+        else
+            _guidedReliveMode = false;
+
         var userId = _supabase.Session?.UserId;
         if (string.IsNullOrEmpty(userId))
         {
@@ -161,7 +194,16 @@ public partial class MemoryDetailViewModel : BaseViewModel, IQueryAttributable
         if (idx >= 0)
         {
             _currentIndex = idx;
-            UpdateCurrentMemory(); // resets IsPreview = true → the exact memory's title card
+            if (_guidedReliveMode)
+            {
+                // Keep the person's place in Title/Date/Tags/Caption after previewing the clip.
+                // Re-running UpdateCurrentMemory here would restart the wizard at Title.
+                IsPreview = true;
+            }
+            else
+            {
+                UpdateCurrentMemory(); // normal detail view: refresh title card for the exact memory
+            }
         }
         else
         {
@@ -230,6 +272,7 @@ public partial class MemoryDetailViewModel : BaseViewModel, IQueryAttributable
             DateLine             = "";
             IsCurrentFavorite    = false;
             IsRetagging          = false;
+            IsGuidedEditing      = false;
             return;
         }
 
@@ -276,6 +319,91 @@ public partial class MemoryDetailViewModel : BaseViewModel, IQueryAttributable
 
         // Reset to preview state whenever we land on a new memory
         IsPreview = true;
+
+        if (_guidedReliveMode)
+            BeginGuidedRelive();
+    }
+
+    private void BeginGuidedRelive()
+    {
+        if (CurrentMemory is null) return;
+
+        ReliveTitleInput = CurrentMemory.Title;
+        ReliveCaptionInput = CurrentMemory.Caption;
+        var captured = CurrentMemory.DateCaptured
+                       ?? DateOnly.FromDateTime(CurrentMemory.CreatedAt.LocalDateTime.Date);
+        ReliveDateInput = captured.ToDateTime(TimeOnly.MinValue);
+        ReliveStep = 1;
+        IsRetagging = false;
+        PopulateRetagPanel();
+        IsGuidedEditing = true;
+    }
+
+    [RelayCommand]
+    private void ReliveNextStep()
+    {
+        if (!IsGuidedEditing) return;
+        if (ReliveStep == 1 && string.IsNullOrWhiteSpace(ReliveTitleInput))
+        {
+            _ = Toast.Make("Give this momento a title first.").Show();
+            return;
+        }
+        if (ReliveStep < 4) ReliveStep++;
+    }
+
+    [RelayCommand]
+    private void RelivePreviousStep()
+    {
+        if (!IsGuidedEditing) return;
+        if (ReliveStep > 1) ReliveStep--;
+    }
+
+    [RelayCommand]
+    private async Task SaveGuidedRelive()
+    {
+        if (CurrentMemory is null) return;
+
+        var title = ReliveTitleInput?.Trim();
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            _ = Toast.Make("Give this momento a title first.").Show();
+            ReliveStep = 1;
+            return;
+        }
+
+        var caption = string.IsNullOrWhiteSpace(ReliveCaptionInput) ? null : ReliveCaptionInput.Trim();
+        var selectedIds = AllTags.Where(t => t.IsSelected).Select(t => t.Tag.Id).ToList();
+        var dateCaptured = DateOnly.FromDateTime(ReliveDateInput.Date);
+
+        try
+        {
+            await _supabase.UpdateMemoryDetailsWithDateAsync(
+                CurrentMemory.Id, title, caption, selectedIds, dateCaptured);
+
+            CurrentMemory.Title = title;
+            CurrentMemory.Caption = caption;
+            CurrentMemory.Tags = selectedIds;
+            CurrentMemory.DateCaptured = dateCaptured;
+            OnPropertyChanged(nameof(CurrentMemory));
+
+            CurrentDisplayTags = selectedIds
+                .Select(id => _allTags.FirstOrDefault(t => t.Id == id))
+                .Where(t => t is not null)
+                .Select(t => new TagInfo(t!.Name, t.Color, t.Icon))
+                .ToList();
+            TagGradientBrush = BuildTagGradient(CurrentDisplayTags);
+            CoverDate = dateCaptured.ToString("M/d/yy");
+            CapturedDateDisplay = $"Captured {dateCaptured:MMM d, yyyy}";
+
+            IsGuidedEditing = false;
+            IsPreview = false;
+            _ = Toast.Make("Momento saved ✨").Show();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"SaveGuidedRelive: {ex.Message}");
+            _ = Toast.Make("Couldn't save this momento. Try again.").Show();
+        }
     }
 
     [RelayCommand]

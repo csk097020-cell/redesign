@@ -9,9 +9,9 @@
     <!-- Aero deep-space gradient background -->
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#050B1F" Offset="0" />
-            <GradientStop Color="#0D1635" Offset="0.55" />
-            <GradientStop Color="#110A2E" Offset="1" />
+            <GradientStop Color="#F4EBD4" Offset="0" />
+            <GradientStop Color="#E3DCC0" Offset="0.56" />
+            <GradientStop Color="#C8C8A5" Offset="1" />
         </LinearGradientBrush>
     </ContentPage.Background>
 
@@ -38,12 +38,12 @@
                 <Label Text="Momentary Momentos" Style="{StaticResource H1}"
                        HorizontalOptions="Center" HorizontalTextAlignment="Center" />
                 <Label Text="Your life in 10-second moments"
-                       FontSize="14" TextColor="{StaticResource GlowCyan}"
+                       FontSize="14" TextColor="{StaticResource OliveDark}"
                        HorizontalOptions="Center" HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
 
             <!-- Connection Status Badge -->
-            <Border BackgroundColor="#33162440"
+            <Border BackgroundColor="#99FFFDF7"
                     StrokeShape="RoundRectangle 20"
                     StrokeThickness="1"
                     Stroke="{StaticResource GlassBorder}"
@@ -69,7 +69,7 @@
                     <Grid ColumnDefinitions="*,Auto" Margin="0,14,0,4">
                         <Label Text="Password" Style="{StaticResource Caption}" VerticalOptions="Center" />
                         <Label Grid.Column="1" Text="{Binding PasswordToggleText}"
-                               TextColor="{StaticResource GlowCyan}" FontSize="13"
+                               TextColor="{StaticResource OliveDark}" FontSize="13"
                                VerticalOptions="Center" Padding="12,6" Margin="0,-6"
                                SemanticProperties.Description="{Binding PasswordToggleDescription}">
                             <Label.GestureRecognizers>

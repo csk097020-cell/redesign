@@ -4,12 +4,11 @@
        xmlns:views="clr-namespace:MomentaryMomentos.Views"
        x:Class="MomentaryMomentos.AppShell"
        Shell.NavBarIsVisible="False"
-       Shell.TabBarBackgroundColor="#0D1635"
-       Shell.TabBarForegroundColor="#00B4D8"
-       Shell.TabBarTitleColor="#00B4D8"
-       Shell.TabBarUnselectedColor="#4A6285">
+       Shell.TabBarBackgroundColor="#FAF6E8"
+       Shell.TabBarForegroundColor="#D84C9A"
+       Shell.TabBarTitleColor="#5D6049"
+       Shell.TabBarUnselectedColor="#8C8875">
 
-    <!-- ===== AUTH ROUTES (no bottom tab bar) ===== -->
     <ShellContent x:Name="LoginShell"
                   Route="login"
                   ContentTemplate="{DataTemplate views:LoginPage}"
@@ -19,29 +18,18 @@
                   ContentTemplate="{DataTemplate views:RegisterPage}"
                   Shell.TabBarIsVisible="False" />
 
-    <!-- ===== MAIN TAB SHELL ===== -->
     <TabBar x:Name="MainTabs" Route="main">
-
         <Tab Title="Home" Icon="icon_home.png" Route="home">
-            <ShellContent Route="home"
-                          ContentTemplate="{DataTemplate views:HomePage}" />
+            <ShellContent Route="home" ContentTemplate="{DataTemplate views:HomePage}" />
         </Tab>
-
         <Tab Title="Capture" Icon="icon_camera.png" Route="capture">
-            <ShellContent Route="capture"
-                          ContentTemplate="{DataTemplate views:CapturePage}" />
+            <ShellContent Route="capture" ContentTemplate="{DataTemplate views:CapturePage}" />
         </Tab>
-
-        <Tab Title="Relive" Icon="icon_play.png" Route="relive">
-            <ShellContent Route="relive"
-                          ContentTemplate="{DataTemplate views:RelivePage}" />
+        <Tab Title="Relive" Icon="dice.png" Route="relive">
+            <ShellContent Route="relive" ContentTemplate="{DataTemplate views:RelivePage}" />
         </Tab>
-
         <Tab Title="Profile" Icon="icon_profile.png" Route="profile">
-            <ShellContent Route="profile"
-                          ContentTemplate="{DataTemplate views:ProfilePage}" />
+            <ShellContent Route="profile" ContentTemplate="{DataTemplate views:ProfilePage}" />
         </Tab>
-
     </TabBar>
-
 </Shell>
