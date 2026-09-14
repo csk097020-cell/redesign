@@ -19,8 +19,11 @@
                 <Label Text="RELIVE" FontSize="11" CharacterSpacing="2.5"
                        TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
             </VerticalStackLayout>
+            <!-- Rolling for a new random momento mid-edit could blow away edits in progress —
+                 only offer it once you're just viewing a saved momento, not editing one. -->
             <Button Grid.Column="2" Text="🎲" Style="{StaticResource RoundIconButton}"
                     WidthRequest="44" HeightRequest="44" CornerRadius="22" FontSize="18"
+                    IsVisible="{Binding IsGuidedEditing, Converter={StaticResource InverseBoolConverter}}"
                     Command="{Binding FindAnotherCommand}"
                     SemanticProperties.Description="Roll for another momento" />
         </Grid>
@@ -29,20 +32,12 @@
              GUIDED RELIVE: title → date → tags → caption + save
              Only Relive launches this mode; direct opens from Home use the detail view below.
              ═══════════════════════════════════════════════════════════════ -->
+        <!-- Editing reads the same as recording: stacked cards on one scroll, not a
+             page-by-page wizard you step or swipe through. -->
         <ScrollView Grid.Row="1" IsVisible="{Binding IsGuidedEditing}">
             <VerticalStackLayout Padding="22,4,22,34" Spacing="16">
 
-                <Grid ColumnDefinitions="*,Auto" Margin="4,0">
-                    <Label Text="TITLE   ·   DATE   ·   TAGS   ·   CAPTION"
-                           FontSize="9" CharacterSpacing="1.25"
-                           TextColor="{StaticResource TextMuted}" VerticalOptions="Center" />
-                    <Label Grid.Column="1" Text="{Binding ReliveProgressText}"
-                           FontSize="11" FontAttributes="Bold" TextColor="{StaticResource OliveDark}" />
-                </Grid>
-                <ProgressBar Progress="{Binding ReliveStep, Converter={StaticResource ReliveStepProgressConverter}}"
-                             ProgressColor="{StaticResource Olive}" BackgroundColor="#D8D0B7" HeightRequest="4" />
-
-                <!-- Small Polaroid preview stays with the person throughout the walkthrough -->
+                <!-- Small Polaroid preview stays with the person while they edit -->
                 <Border Style="{StaticResource Polaroid}" Margin="12,2" Padding="10,10,10,14">
                     <VerticalStackLayout Spacing="6">
                         <Grid HeightRequest="210">
@@ -63,113 +58,98 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Step 1: title -->
-                <VerticalStackLayout IsVisible="{Binding IsReliveTitleStep}" Spacing="12">
-                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
-                        <Label Text="Set a Title" FontSize="24" FontAttributes="Bold"
-                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
-                        <Label Text="Give this momento a name you'll recognize later."
-                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                <!-- Title & Date -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Title &amp; Date" FontAttributes="Bold" FontSize="15"
+                               TextColor="{StaticResource GlowCyan}" />
+                        <Label Text="Title" Style="{StaticResource Caption}" />
+                        <Frame Style="{StaticResource GlassInput}" HeightRequest="52">
+                            <Entry Text="{Binding ReliveTitleInput}" Placeholder="Give this moment a title"
+                                   MaxLength="80" ReturnType="Done" />
+                        </Frame>
+                        <Label Text="Date captured" Style="{StaticResource Caption}" Margin="0,4,0,0" />
+                        <Frame Style="{StaticResource GlassInput}" HeightRequest="52">
+                            <DatePicker Date="{Binding ReliveDateInput}"
+                                        MaximumDate="{Binding MaxReliveDate}"
+                                        Format="MMMM d, yyyy" />
+                        </Frame>
                     </VerticalStackLayout>
-                    <Frame Style="{StaticResource GlassInput}" HeightRequest="58">
-                        <Entry Text="{Binding ReliveTitleInput}" Placeholder="Give this moment a title"
-                               MaxLength="80" ReturnType="Done" />
-                    </Frame>
-                    <Button Text="Next  →" Style="{StaticResource PrimaryBtn}"
-                            Command="{Binding ReliveNextStepCommand}" />
-                </VerticalStackLayout>
+                </Frame>
 
-                <!-- Step 2: date -->
-                <VerticalStackLayout IsVisible="{Binding IsReliveDateStep}" Spacing="12">
-                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
-                        <Label Text="Confirm the Date" FontSize="24" FontAttributes="Bold"
-                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
-                        <Label Text="When did this moment happen?"
-                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                <!-- Tag it! -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Tag it!" FontAttributes="Bold" FontSize="15"
+                               TextColor="{StaticResource GlowCyan}" />
+                        <Label Text="What was it, or how did it feel? Pick a few." Style="{StaticResource Body}" />
+                        <Border BackgroundColor="#66FFFDF7" Stroke="#D8CFB6" StrokeThickness="1"
+                                StrokeShape="RoundRectangle 18" Padding="12">
+                            <ScrollView MaximumHeightRequest="250">
+                                <FlexLayout BindableLayout.ItemsSource="{Binding AllTags}" Wrap="Wrap" Direction="Row">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:TagSelection">
+                                            <Border FlexLayout.Shrink="0" Margin="0,0,7,7"
+                                                    BackgroundColor="{StaticResource Cream}"
+                                                    Stroke="#CFC7AE" StrokeThickness="1"
+                                                    StrokeShape="RoundRectangle 18" Padding="0">
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="Stroke" Value="{StaticResource Accent}" />
+                                                        <Setter Property="StrokeThickness" Value="2" />
+                                                        <Setter Property="BackgroundColor" Value="#FFF9EE" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Button Text="{Binding Tag.DisplayLabel}"
+                                                        BackgroundColor="Transparent"
+                                                        TextColor="{StaticResource Ink}"
+                                                        FontSize="12" HeightRequest="38" Padding="13,0"
+                                                        Clicked="OnRetagTagClicked" CommandParameter="{Binding .}" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </FlexLayout>
+                            </ScrollView>
+                        </Border>
+                        <Button Text="＋ Add your own tag" Style="{StaticResource SecondaryBtn}"
+                                Command="{Binding CreateCustomTagCommand}" HeightRequest="44" />
                     </VerticalStackLayout>
-                    <Frame Style="{StaticResource GlassInput}" HeightRequest="58">
-                        <DatePicker Date="{Binding ReliveDateInput}"
-                                    MaximumDate="{Binding MaxReliveDate}"
-                                    Format="MMMM d, yyyy" />
-                    </Frame>
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Text="←  Back" Style="{StaticResource SecondaryBtn}"
-                                Command="{Binding RelivePreviousStepCommand}" />
-                        <Button Grid.Column="1" Text="Next  →" Style="{StaticResource PrimaryBtn}"
-                                Command="{Binding ReliveNextStepCommand}" />
-                    </Grid>
-                </VerticalStackLayout>
+                </Frame>
 
-                <!-- Step 3: tags -->
-                <VerticalStackLayout IsVisible="{Binding IsReliveTagsStep}" Spacing="12">
-                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
-                        <Label Text="Add Tags" FontSize="24" FontAttributes="Bold"
-                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
-                        <Label Text="Choose a few words to remember this moment by."
-                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                <!-- Add Caption -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Add Caption" FontAttributes="Bold" FontSize="15"
+                               TextColor="{StaticResource GlowCyan}" />
+                        <Frame Style="{StaticResource GlassInput}" Padding="14,8">
+                            <Editor Text="{Binding ReliveCaptionInput}"
+                                    Placeholder="What do you want future-you to remember?"
+                                    MaxLength="280" AutoSize="TextChanges" />
+                        </Frame>
                     </VerticalStackLayout>
+                </Frame>
 
-                    <Border BackgroundColor="#66FFFDF7" Stroke="#D8CFB6" StrokeThickness="1"
-                            StrokeShape="RoundRectangle 18" Padding="12">
-                        <ScrollView MaximumHeightRequest="250">
-                            <FlexLayout BindableLayout.ItemsSource="{Binding AllTags}" Wrap="Wrap" Direction="Row">
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:TagSelection">
-                                        <Border FlexLayout.Shrink="0" Margin="0,0,7,7"
-                                                BackgroundColor="{StaticResource Cream}"
-                                                Stroke="#CFC7AE" StrokeThickness="1"
-                                                StrokeShape="RoundRectangle 18" Padding="0">
-                                            <Border.Triggers>
-                                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                                    <Setter Property="Stroke" Value="{StaticResource Accent}" />
-                                                    <Setter Property="StrokeThickness" Value="2" />
-                                                    <Setter Property="BackgroundColor" Value="#FFF9EE" />
-                                                </DataTrigger>
-                                            </Border.Triggers>
-                                            <Button Text="{Binding Tag.DisplayLabel}"
-                                                    BackgroundColor="Transparent"
-                                                    TextColor="{StaticResource Ink}"
-                                                    FontSize="12" HeightRequest="38" Padding="13,0"
-                                                    Clicked="OnRetagTagClicked" CommandParameter="{Binding .}" />
-                                        </Border>
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </FlexLayout>
-                        </ScrollView>
-                    </Border>
-
-                    <Button Text="＋ Add your own tag" Style="{StaticResource SecondaryBtn}"
-                            Command="{Binding CreateCustomTagCommand}" HeightRequest="44" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Text="←  Back" Style="{StaticResource SecondaryBtn}"
-                                Command="{Binding RelivePreviousStepCommand}" />
-                        <Button Grid.Column="1" Text="Next  →" Style="{StaticResource PrimaryBtn}"
-                                Command="{Binding ReliveNextStepCommand}" />
-                    </Grid>
-                </VerticalStackLayout>
-
-                <!-- Step 4: caption + save -->
-                <VerticalStackLayout IsVisible="{Binding IsReliveCaptionStep}" Spacing="12">
-                    <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
-                        <Label Text="Add a Caption" FontSize="24" FontAttributes="Bold"
-                               TextColor="{StaticResource Ink}" HorizontalOptions="Center" />
-                        <Label Text="Tell the story behind this moment. Optional, but lovely."
-                               Style="{StaticResource Body}" HorizontalTextAlignment="Center" />
+                <!-- Save Momento -->
+                <Frame Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="9">
+                        <Label Text="Save Momento" FontAttributes="Bold" FontSize="15"
+                               TextColor="{StaticResource GlowCyan}" />
+                        <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource Accent}"
+                                StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10">
+                            <Grid ColumnDefinitions="56,*" ColumnSpacing="14">
+                                <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1FD84C9A"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                    <ImageButton Source="icon_heart.png" BackgroundColor="Transparent" Padding="0"
+                                                 Command="{Binding SaveGuidedReliveCommand}" />
+                                </Border>
+                                <Label Grid.Column="1" Text="Save Momento" FontSize="14" FontAttributes="Bold"
+                                       TextColor="{StaticResource Ink}" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                        <Label Text="Your momento stays private unless you choose to share it."
+                               Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
-                    <Frame Style="{StaticResource GlassInput}" HeightRequest="126" Padding="14,8">
-                        <Editor Text="{Binding ReliveCaptionInput}"
-                                Placeholder="What do you want future-you to remember?"
-                                MaxLength="280" AutoSize="TextChanges" />
-                    </Frame>
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Text="←  Back" Style="{StaticResource SecondaryBtn}"
-                                Command="{Binding RelivePreviousStepCommand}" />
-                        <Button Grid.Column="1" Text="Save Momento  ♡" Style="{StaticResource PrimaryBtn}"
-                                Command="{Binding SaveGuidedReliveCommand}" />
-                    </Grid>
-                    <Label Text="Your momento stays private unless you choose to share it."
-                           Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
-                </VerticalStackLayout>
+                </Frame>
 
             </VerticalStackLayout>
         </ScrollView>
@@ -224,23 +204,43 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Activity bar: favorite, retag, see-less, delete, share -->
+                <!-- Activity bar: favorite, retag, see-less, delete, share — colored icon
+                     badges matching Home's action-row language instead of plain glyphs. -->
                 <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="9" Margin="4,0">
-                    <Button Text="♡" Style="{StaticResource RoundIconButton}"
-                            HorizontalOptions="Center" Command="{Binding ToggleFavoriteCommand}"
-                            SemanticProperties.Description="Favorite momento" />
-                    <Button Grid.Column="1" Text="◇" Style="{StaticResource RoundIconButton}"
-                            HorizontalOptions="Center" Command="{Binding ToggleRetagCommand}"
-                            SemanticProperties.Description="Edit title caption and tags" />
-                    <Button Grid.Column="2" Text="◉̸" Style="{StaticResource RoundIconButton}"
-                            HorizontalOptions="Center" Command="{Binding SeeLessCommand}"
-                            SemanticProperties.Description="See this momento less often" />
-                    <Button Grid.Column="3" Text="⌫" Style="{StaticResource RoundIconButton}"
-                            HorizontalOptions="Center" TextColor="{StaticResource Danger}"
-                            Command="{Binding DeleteCommand}" SemanticProperties.Description="Delete momento" />
-                    <Button Grid.Column="4" Text="↗" Style="{StaticResource RoundIconButton}"
-                            HorizontalOptions="Center" Command="{Binding ShareVideoCommand}"
-                            SemanticProperties.Description="Share or save momento" />
+                    <Border WidthRequest="56" HeightRequest="56" HorizontalOptions="Center"
+                            BackgroundColor="#1FD84C9A" Stroke="{StaticResource Accent}"
+                            StrokeThickness="2" StrokeShape="RoundRectangle 28" Padding="15">
+                        <ImageButton Source="icon_star.png" BackgroundColor="Transparent" Padding="0"
+                                     Command="{Binding ToggleFavoriteCommand}"
+                                     SemanticProperties.Description="Favorite momento" />
+                    </Border>
+                    <Border Grid.Column="1" WidthRequest="56" HeightRequest="56" HorizontalOptions="Center"
+                            BackgroundColor="#1F8B63C9" Stroke="{StaticResource GlowViolet}"
+                            StrokeThickness="2" StrokeShape="RoundRectangle 28" Padding="15">
+                        <ImageButton Source="icon_edit.png" BackgroundColor="Transparent" Padding="0"
+                                     Command="{Binding ToggleRetagCommand}"
+                                     SemanticProperties.Description="Edit title caption and tags" />
+                    </Border>
+                    <Border Grid.Column="2" WidthRequest="56" HeightRequest="56" HorizontalOptions="Center"
+                            BackgroundColor="#1F788760" Stroke="{StaticResource Olive}"
+                            StrokeThickness="2" StrokeShape="RoundRectangle 28" Padding="15">
+                        <ImageButton Source="icon_hide.png" BackgroundColor="Transparent" Padding="0"
+                                     Command="{Binding SeeLessCommand}"
+                                     SemanticProperties.Description="See this momento less often" />
+                    </Border>
+                    <Border Grid.Column="3" WidthRequest="56" HeightRequest="56" HorizontalOptions="Center"
+                            BackgroundColor="#22BC5C56" Stroke="{StaticResource Danger}"
+                            StrokeThickness="2" StrokeShape="RoundRectangle 28" Padding="15">
+                        <ImageButton Source="icon_delete.png" BackgroundColor="Transparent" Padding="0"
+                                     Command="{Binding DeleteCommand}" SemanticProperties.Description="Delete momento" />
+                    </Border>
+                    <Border Grid.Column="4" WidthRequest="56" HeightRequest="56" HorizontalOptions="Center"
+                            BackgroundColor="#1F49B9D3" Stroke="{StaticResource GlowCyan}"
+                            StrokeThickness="2" StrokeShape="RoundRectangle 28" Padding="15">
+                        <ImageButton Source="icon_share.png" BackgroundColor="Transparent" Padding="0"
+                                     Command="{Binding ShareVideoCommand}"
+                                     SemanticProperties.Description="Share or save momento" />
+                    </Border>
                 </Grid>
 
                 <Grid ColumnDefinitions="Auto,*,Auto" Margin="8,1">

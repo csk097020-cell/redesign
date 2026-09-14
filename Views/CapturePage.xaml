@@ -29,36 +29,74 @@
                        VerticalOptions="Center" />
             </Grid>
 
-            <!-- Step 1: Record or Pick Video -->
+            <!-- Record Moment -->
             <Frame Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="Step 1 — Record your moment" FontAttributes="Bold" FontSize="15"
+                    <Label Text="Record Moment" FontAttributes="Bold" FontSize="15"
                            TextColor="{StaticResource GlowCyan}" />
                     <Label Text="Max 10 seconds." Style="{StaticResource Body}" />
 
                     <!-- Both options — plain "Capture" tab entry, no intent (FIX 1) -->
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12" IsVisible="{Binding ShowBothOptions}">
-                        <Button Text="🎥  Record" Style="{StaticResource PrimaryBtn}"
-                                Command="{Binding CaptureVideoCommand}"
-                                IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
-                                Margin="0" />
-                        <Button Grid.Column="1" Text="📂  Pick Video" Style="{StaticResource SecondaryBtn}"
-                                Command="{Binding PickVideoCommand}"
-                                IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
-                                Margin="0" />
-                    </Grid>
+                    <VerticalStackLayout Spacing="9" IsVisible="{Binding ShowBothOptions}">
+                        <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource Accent}"
+                                StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10">
+                            <Grid ColumnDefinitions="56,*" ColumnSpacing="14">
+                                <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1FD84C9A"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                    <ImageButton Source="icon_camera.png" BackgroundColor="Transparent" Padding="0"
+                                                 Command="{Binding CaptureVideoCommand}"
+                                                 IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}" />
+                                </Border>
+                                <Label Grid.Column="1" Text="Record" FontSize="14" FontAttributes="Bold"
+                                       TextColor="{StaticResource Ink}" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                        <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource GlowCyan}"
+                                StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10">
+                            <Grid ColumnDefinitions="56,*" ColumnSpacing="14">
+                                <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1F49B9D3"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                    <ImageButton Source="icon_upload.png" BackgroundColor="Transparent" Padding="0"
+                                                 Command="{Binding PickVideoCommand}"
+                                                 IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}" />
+                                </Border>
+                                <Label Grid.Column="1" Text="Pick Video" FontSize="14" FontAttributes="Bold"
+                                       TextColor="{StaticResource Ink}" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
 
                     <!-- Single option — Home's Capture/Upload buttons carry an intent, so only
                          the relevant action shows (the camera/picker also auto-launches; see
                          CapturePage.OnAppearing) (FIX 1). -->
-                    <Button Text="🎥  Record" Style="{StaticResource PrimaryBtn}"
-                            IsVisible="{Binding ShowRecordOnly}"
-                            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
-                            Command="{Binding CaptureVideoCommand}" Margin="0" />
-                    <Button Text="📂  Pick Video" Style="{StaticResource SecondaryBtn}"
-                            IsVisible="{Binding ShowPickOnly}"
-                            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
-                            Command="{Binding PickVideoCommand}" Margin="0" />
+                    <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource Accent}"
+                            StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10"
+                            IsVisible="{Binding ShowRecordOnly}">
+                        <Grid ColumnDefinitions="56,*" ColumnSpacing="14">
+                            <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1FD84C9A"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                <ImageButton Source="icon_camera.png" BackgroundColor="Transparent" Padding="0"
+                                             Command="{Binding CaptureVideoCommand}"
+                                             IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="Record" FontSize="14" FontAttributes="Bold"
+                                   TextColor="{StaticResource Ink}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                    <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource GlowCyan}"
+                            StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10"
+                            IsVisible="{Binding ShowPickOnly}">
+                        <Grid ColumnDefinitions="56,*" ColumnSpacing="14">
+                            <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1F49B9D3"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                <ImageButton Source="icon_upload.png" BackgroundColor="Transparent" Padding="0"
+                                             Command="{Binding PickVideoCommand}"
+                                             IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="Pick Video" FontSize="14" FontAttributes="Bold"
+                                   TextColor="{StaticResource Ink}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
 
                     <!-- Processing feedback. Re-encoding a 4K clip runs the better part of ten
                          seconds; without this the screen looks frozen and users assume it failed. -->
@@ -104,8 +142,11 @@
                             Stroke="#5500E5A0"
                             Padding="14,10"
                             IsVisible="{Binding HasVideo}">
-                        <Label Text="✅  Video ready!" TextColor="{StaticResource GlowGreen}"
-                               FontAttributes="Bold" HorizontalOptions="Center" />
+                        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Image Source="icon_check.png" WidthRequest="16" HeightRequest="16" />
+                            <Label Text="Video ready!" TextColor="{StaticResource GlowGreen}"
+                                   FontAttributes="Bold" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
                     </Border>
 
                     <!-- Discard & re-record — available as soon as a video is recorded (FIX 3),
@@ -121,7 +162,7 @@
             <!-- Step 2: Title + Date Captured -->
             <Frame Style="{StaticResource Card}" IsVisible="{Binding HasVideo}">
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Step 2 — Title &amp; date" FontAttributes="Bold" FontSize="15"
+                    <Label Text="Title &amp; Date" FontAttributes="Bold" FontSize="15"
                            TextColor="{StaticResource GlowCyan}" />
 
                     <Label Text="Title (optional)" Style="{StaticResource Caption}" />
@@ -143,8 +184,9 @@
             <!-- Step 3: Tag emotions -->
             <Frame Style="{StaticResource Card}" IsVisible="{Binding HasVideo}">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="Step 3 — How do you feel?" FontAttributes="Bold" FontSize="15"
+                    <Label Text="Tag it!" FontAttributes="Bold" FontSize="15"
                            TextColor="{StaticResource GlowCyan}" />
+                    <Label Text="What was it, or how did it feel? Pick a few." Style="{StaticResource Body}" />
 
                     <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{StaticResource GlowCyan}"
                                        IsVisible="{Binding IsBusy}" HorizontalOptions="Center" />
@@ -196,7 +238,7 @@
             <!-- Step 4: Caption -->
             <Frame Style="{StaticResource Card}" IsVisible="{Binding HasSelectedTags}">
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Step 4 — Add a caption" FontAttributes="Bold" FontSize="15"
+                    <Label Text="Add Caption" FontAttributes="Bold" FontSize="15"
                            TextColor="{StaticResource GlowCyan}" />
                     <Label Text="Caption (optional)" Style="{StaticResource Caption}" />
                     <Frame Style="{StaticResource GlassInput}">
@@ -211,12 +253,22 @@
             <!-- Step 5: Save -->
             <Frame Style="{StaticResource Card}" IsVisible="{Binding HasSelectedTags}">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="Step 5 — Save your memory" FontAttributes="Bold" FontSize="15"
+                    <Label Text="Save Momento" FontAttributes="Bold" FontSize="15"
                            TextColor="{StaticResource GlowCyan}" />
 
-                    <Button Text="💾  Save Memory" Style="{StaticResource PrimaryBtn}"
-                            Command="{Binding SaveMemoryCommand}"
-                            IsEnabled="{Binding IsSaving, Converter={StaticResource InverseBoolConverter}}" />
+                    <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource Accent}"
+                            StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10">
+                        <Grid ColumnDefinitions="56,*" ColumnSpacing="14">
+                            <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1FD84C9A"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                <ImageButton Source="icon_heart.png" BackgroundColor="Transparent" Padding="0"
+                                             Command="{Binding SaveMemoryCommand}"
+                                             IsEnabled="{Binding IsSaving, Converter={StaticResource InverseBoolConverter}}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="Save Momento" FontSize="14" FontAttributes="Bold"
+                                   TextColor="{StaticResource Ink}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
 
                     <ActivityIndicator IsRunning="{Binding IsSaving}" Color="{StaticResource GlowCyan}"
                                        IsVisible="{Binding IsSaving}" HorizontalOptions="Center" />

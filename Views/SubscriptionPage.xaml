@@ -18,7 +18,10 @@
     <ScrollView>
         <VerticalStackLayout Padding="20,24" Spacing="16">
 
-            <Label Text="⭐  Upgrade to Premium" Style="{StaticResource H2}" />
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                <Image Source="icon_star.png" WidthRequest="18" HeightRequest="18" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="Upgrade to Premium" Style="{StaticResource H2}" VerticalOptions="Center" />
+            </Grid>
 
             <!-- Current Status Card -->
             <Frame Style="{StaticResource Card}">
@@ -35,9 +38,18 @@
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Premium Benefits" FontAttributes="Bold" FontSize="16"
                            TextColor="{StaticResource GlowCyan}" />
-                    <Label Text="✅  1,000 momentos" Style="{StaticResource Body}" />
-                    <Label Text="✅  Access from any device" Style="{StaticResource Body}" />
-                    <Label Text="✅  Automatic cloud backup" Style="{StaticResource Body}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Image Source="icon_check.png" WidthRequest="14" HeightRequest="14" />
+                        <Label Text="1,000 momentos" Style="{StaticResource Body}" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8">
+                        <Image Source="icon_check.png" WidthRequest="14" HeightRequest="14" />
+                        <Label Text="Access from any device" Style="{StaticResource Body}" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8">
+                        <Image Source="icon_check.png" WidthRequest="14" HeightRequest="14" />
+                        <Label Text="Automatic cloud backup" Style="{StaticResource Body}" />
+                    </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Frame>
 
@@ -72,7 +84,12 @@
                     Padding="20,16"
                     IsVisible="{Binding IsPremium}">
                 <VerticalStackLayout HorizontalOptions="Center" Spacing="10">
-                    <Label Text="✨" FontSize="44" HorizontalOptions="Center" />
+                    <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1FD84C9A"
+                            StrokeThickness="0" StrokeShape="RoundRectangle 28" Padding="0"
+                            HorizontalOptions="Center">
+                        <Image Source="icon_star.png" WidthRequest="26" HeightRequest="26"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
                     <Label Text="You're on Premium!" FontAttributes="Bold" FontSize="18"
                            TextColor="{StaticResource GlowGreen}" HorizontalOptions="Center" />
                     <Label Text="1,000 momentos, all yours." Style="{StaticResource Body}"

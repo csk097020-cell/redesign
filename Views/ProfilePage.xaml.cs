@@ -34,9 +34,6 @@ public partial class ProfilePage : ContentPage
     private void OnUpgradeClicked(object sender, EventArgs e)
         => Shell.Current.GoToAsync("subscription");
 
-    private void OnAdminClicked(object sender, EventArgs e)
-        => Shell.Current.GoToAsync("admin");
-
     private async void OnDeleteAccountClicked(object sender, EventArgs e)
     {
         var email  = _vm.Email;

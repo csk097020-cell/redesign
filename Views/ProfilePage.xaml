@@ -40,8 +40,8 @@
                             </Ellipse.Fill>
                         </Ellipse>
 
-                        <!-- Fallback emoji when no avatar -->
-                        <Label Text="👤" FontSize="52"
+                        <!-- Fallback icon when no avatar -->
+                        <Image Source="icon_profile.png" WidthRequest="48" HeightRequest="48"
                                HorizontalOptions="Center" VerticalOptions="Center"
                                IsVisible="{Binding HasAvatar,
                                            Converter={StaticResource InverseBoolConverter}}" />
@@ -69,24 +69,13 @@
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding PickAvatarCommand}" />
                             </Border.GestureRecognizers>
-                            <Label Text="📷" FontSize="16" />
+                            <Image Source="icon_camera.png" WidthRequest="16" HeightRequest="16" />
                         </Border>
                     </Grid>
                     <Label Text="{Binding FullName, TargetNullValue='No Name Set'}"
                            Style="{StaticResource H2}" HorizontalOptions="Center" />
                     <Label Text="{Binding Email}" Style="{StaticResource Body}"
                            HorizontalOptions="Center" />
-                    <!-- Admin badge -->
-                    <Border BackgroundColor="#220077A8"
-                            StrokeShape="RoundRectangle 12"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource GlowCyan}"
-                            Padding="14,6"
-                            HorizontalOptions="Center"
-                            IsVisible="{Binding IsAdmin}">
-                        <Label Text="⚡ Admin" TextColor="{StaticResource GlowCyan}"
-                               FontAttributes="Bold" FontSize="13" />
-                    </Border>
                 </VerticalStackLayout>
             </Frame>
 
@@ -133,22 +122,50 @@
                     <Label Text="Account" FontAttributes="Bold" FontSize="16"
                            TextColor="{StaticResource GlowCyan}" Margin="0,0,0,6" />
 
-                    <Button Text="✏️  Edit Profile" Style="{StaticResource SecondaryBtn}"
-                            Command="{Binding StartEditCommand}"
-                            IsVisible="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}" />
+                    <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource GlowViolet}"
+                            StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10"
+                            IsVisible="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}">
+                        <Grid ColumnDefinitions="56,*" ColumnSpacing="14">
+                            <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1F8B63C9"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                <ImageButton Source="icon_edit.png" BackgroundColor="Transparent" Padding="0"
+                                             Command="{Binding StartEditCommand}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="Edit Profile" FontSize="14" FontAttributes="Bold"
+                                   TextColor="{StaticResource Ink}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
 
-                    <Button Text="⭐  Upgrade to Premium" Style="{StaticResource PrimaryBtn}"
-                            Clicked="OnUpgradeClicked" />
+                    <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource Accent}"
+                            StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10">
+                        <Grid ColumnDefinitions="56,*" ColumnSpacing="14">
+                            <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1FD84C9A"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                <ImageButton Source="icon_star.png" BackgroundColor="Transparent" Padding="0"
+                                             Clicked="OnUpgradeClicked" />
+                            </Border>
+                            <Label Grid.Column="1" Text="Upgrade to Premium" FontSize="14" FontAttributes="Bold"
+                                   TextColor="{StaticResource Ink}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
 
-                    <Button Text="🔧  Admin Panel" Style="{StaticResource SecondaryBtn}"
-                            IsVisible="{Binding IsAdmin}" Clicked="OnAdminClicked" />
-
-                    <Button Text="Sign Out" Style="{StaticResource DangerBtn}"
-                            Clicked="OnSignOutClicked" Margin="0,8,0,0" />
+                    <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource Danger}"
+                            StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10" Margin="0,8,0,0">
+                        <Grid ColumnDefinitions="56,*" ColumnSpacing="14">
+                            <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#22BC5C56"
+                                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                                <ImageButton Source="icon_exit.png" BackgroundColor="Transparent" Padding="0"
+                                             Clicked="OnSignOutClicked" />
+                            </Border>
+                            <Label Grid.Column="1" Text="Sign Out" FontSize="14" FontAttributes="Bold"
+                                   TextColor="{StaticResource Ink}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
 
                     <BoxView HeightRequest="1" BackgroundColor="#CFC7AE" Margin="0,8" />
 
-                    <Button Text="🗑  Delete Account"
+                    <Button Text="  Delete Account"
+                            ImageSource="icon_delete.png"
                             Clicked="OnDeleteAccountClicked"
                             BackgroundColor="Transparent"
                             TextColor="#BC5C56"
