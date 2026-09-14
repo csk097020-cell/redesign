@@ -2,26 +2,27 @@ namespace MomentaryMomentos.Utils;
 
 /// <summary>
 /// Curated set of tag colors. Tags no longer let the user pick a color — one is
-/// assigned automatically on creation from this palette. Colors are vivid,
-/// high-contrast-on-dark (Tailwind-500 family), deliberately avoiding muddy /
-/// low-saturation tones so any combination looks good together.
+/// assigned automatically on creation from this palette. Colors match the warm
+/// keepsake redesign's cream/tan/olive world (four are the app's own brand
+/// accents) rather than generic saturated primaries, so any tag chip belongs
+/// next to the rest of the app instead of looking like a leftover default.
 /// </summary>
 public static class TagPalette
 {
     public static readonly IReadOnlyList<string> Colors =
     [
-        "#EF4444", // red
-        "#F97316", // orange
-        "#F59E0B", // amber
-        "#EAB308", // yellow
-        "#84CC16", // lime
-        "#22C55E", // green
-        "#14B8A6", // teal
-        "#06B6D4", // cyan
-        "#3B82F6", // blue
-        "#6366F1", // indigo
-        "#8B5CF6", // violet
-        "#EC4899", // pink
+        "#D84C9A", // rose (brand Accent)
+        "#C2603D", // terracotta
+        "#C99A3B", // gold / mustard
+        "#9CA05A", // warm olive-yellow
+        "#788760", // olive / sage (brand GlowGreen)
+        "#5E9080", // sage teal
+        "#49B9D3", // cyan (brand GlowCyan)
+        "#6E7FB0", // dusty blue
+        "#8B63C9", // violet (brand GlowViolet)
+        "#9C5F82", // mauve / plum
+        "#A5473A", // brick red
+        "#D97862", // soft coral
     ];
 
     /// <summary>

@@ -130,16 +130,16 @@ create policy "Admins can manage all tags"
 -- Tags are name + color only; the icon column keeps its '✨' default and is no longer
 -- shown in the app. Colors are spread across the curated app palette (see Utils/TagPalette.cs).
 insert into momo_tags (name, color, is_active, user_id) values
-    ('Adventure',    '#F97316', true, null),
-    ('Celebrations', '#EC4899', true, null),
-    ('Family',       '#22C55E', true, null),
-    ('Friends',      '#3B82F6', true, null),
-    ('Pets',         '#F59E0B', true, null),
-    ('Travel',       '#06B6D4', true, null),
-    ('Work',         '#6366F1', true, null),
-    ('Happy',        '#EAB308', true, null),
-    ('Sad',          '#8B5CF6', true, null),
-    ('Awe',          '#14B8A6', true, null)
+    ('Adventure',    '#C2603D', true, null),
+    ('Celebrations', '#D97862', true, null),
+    ('Family',       '#5E9080', true, null),
+    ('Friends',      '#8B63C9', true, null),
+    ('Pets',         '#C99A3B', true, null),
+    ('Travel',       '#6E7FB0', true, null),
+    ('Work',         '#9C5F82', true, null),
+    ('Happy',        '#9CA05A', true, null),
+    ('Sad',          '#A5473A', true, null),
+    ('Awe',          '#49B9D3', true, null)
 on conflict do nothing;
 
 -- ─────────────────────────────────────────────────────────────────────────────
