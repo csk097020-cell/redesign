@@ -131,10 +131,19 @@
             </Frame>
 
             <!-- ── Trim & Use button ── -->
-            <Button Text="✂️  Trim &amp; Use This Clip"
-                    Style="{StaticResource PrimaryBtn}"
-                    Command="{Binding TrimCommand}"
-                    IsEnabled="{Binding IsTrimming, Converter={StaticResource InverseBoolConverter}}" />
+            <Border BackgroundColor="{StaticResource Cream}" Stroke="{StaticResource Accent}"
+                    StrokeThickness="2.5" StrokeShape="RoundRectangle 20" Padding="10,10">
+                <Grid ColumnDefinitions="56,*" ColumnSpacing="14">
+                    <Border WidthRequest="56" HeightRequest="56" BackgroundColor="#1FD84C9A"
+                            StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
+                        <ImageButton Source="icon_scissors.png" BackgroundColor="Transparent" Padding="0"
+                                     Command="{Binding TrimCommand}"
+                                     IsEnabled="{Binding IsTrimming, Converter={StaticResource InverseBoolConverter}}" />
+                    </Border>
+                    <Label Grid.Column="1" Text="Trim &amp; Use This Clip" FontSize="14" FontAttributes="Bold"
+                           TextColor="{StaticResource Ink}" VerticalOptions="Center" />
+                </Grid>
+            </Border>
 
             <!-- Error message -->
             <Label Text="{Binding ErrorMessage}"
