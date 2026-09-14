@@ -25,16 +25,16 @@ update momo_tags t
 set    color = v.color,
        is_active = true
 from (values
-    ('Adventure',    '#F97316'),
-    ('Celebrations', '#EC4899'),
-    ('Family',       '#22C55E'),
-    ('Friends',      '#3B82F6'),
-    ('Pets',         '#F59E0B'),
-    ('Travel',       '#06B6D4'),
-    ('Work',         '#6366F1'),
-    ('Happy',        '#EAB308'),
-    ('Sad',          '#8B5CF6'),
-    ('Awe',          '#14B8A6')
+    ('Adventure',    '#C2603D'),
+    ('Celebrations', '#D97862'),
+    ('Family',       '#5E9080'),
+    ('Friends',      '#8B63C9'),
+    ('Pets',         '#C99A3B'),
+    ('Travel',       '#6E7FB0'),
+    ('Work',         '#9C5F82'),
+    ('Happy',        '#9CA05A'),
+    ('Sad',          '#A5473A'),
+    ('Awe',          '#49B9D3')
 ) as v(name, color)
 where t.user_id is null
   and t.name = v.name;
@@ -43,16 +43,16 @@ where t.user_id is null
 insert into momo_tags (name, color, is_active, user_id)
 select v.name, v.color, true, null
 from (values
-    ('Adventure',    '#F97316'),
-    ('Celebrations', '#EC4899'),
-    ('Family',       '#22C55E'),
-    ('Friends',      '#3B82F6'),
-    ('Pets',         '#F59E0B'),
-    ('Travel',       '#06B6D4'),
-    ('Work',         '#6366F1'),
-    ('Happy',        '#EAB308'),
-    ('Sad',          '#8B5CF6'),
-    ('Awe',          '#14B8A6')
+    ('Adventure',    '#C2603D'),
+    ('Celebrations', '#D97862'),
+    ('Family',       '#5E9080'),
+    ('Friends',      '#8B63C9'),
+    ('Pets',         '#C99A3B'),
+    ('Travel',       '#6E7FB0'),
+    ('Work',         '#9C5F82'),
+    ('Happy',        '#9CA05A'),
+    ('Sad',          '#A5473A'),
+    ('Awe',          '#49B9D3')
 ) as v(name, color)
 where not exists (
     select 1 from momo_tags t
